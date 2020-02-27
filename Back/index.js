@@ -10,7 +10,7 @@ router.get("/", function (req, res, next){//When a get request is made on this d
     console.log("connection of index-home");
 
 
-    fs.readFile(process.cwd() + "/routes/index.html", "utf8", function(err, data){
+    fs.readFile(process.cwd() + "/index.html", "utf8", function(err, data){
         res.send(data);//Send data back to user
     });
 });
