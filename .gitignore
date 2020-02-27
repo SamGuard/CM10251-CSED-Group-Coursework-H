@@ -106,8 +106,6 @@ dist
 .DS_Store
 
 .idea
-package.json
-package-lock.json
 
 # dependencies
 /node_modules
