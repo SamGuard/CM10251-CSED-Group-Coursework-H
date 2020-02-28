@@ -1,10 +1,16 @@
-const http = require('http');//Loading http package so i can use a http server
-const app = require("./app");//Getting app.js in the current folder which holds all the routes the user can take
+const https = require('https');
+const fs = require('fs');
+const app = require('./app.js');
 
-const port = process.env.PORT || 3000;//This means to use port 3000 unless process.env.PORT is set as this variable is set when deployed to heroku
 
-const server = http.createServer(app);//Creates the http server using app.js
 
-server.listen(port);//Listen for incoming connections
+const options = {
+    key: fs.readFileSync('key.pem'),
+    cert: fs.readFileSync('cert.pem')
+};
 
-console.log("listening on port " + port);
+var server = https.createServer(options, app);
+
+server.listen(3000);
+
+console.log("server opened on port 3000");

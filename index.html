@@ -1,164 +1,49 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Not Tetris Tension</title>
-    <link href='https://fonts.googleapis.com/css?family=Titillium+Web:400,300,600' rel='stylesheet' type='text/css'>
-
+    <title>Fit track</title>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="main.js"></script>
-    <script src="Asset/anim.js"></script>
-    <link href="styles/main.css" rel="stylesheet" type="text/css" >
-    <script src="https://kit.fontawesome.com/ecc5823153.js" crossorigin="anonymous"></script>
-
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
 
 </head>
 
 <body>
-<div style="display: none;" id="leftMenuIcon">
-    <i style="position: relative; top: -10px" class="fas fa-bars"></i>
-</div>
 
-<div  style="display: none;" id="leftMenuID" class="leftMenu">
-    <div id="keyDIV">
-        <p id="keyText"> Key: </p>
-        <div class="progress" id="key">
-            <div class="progress-bar bg-info progress-bar-striped progress-bar-animated" style="width:50%">Current Week</div>
-            <div class="progress-bar progress-bar-striped progress-bar-animated" style="width:50%">Average Week</div>
-        </div>
-    </div>
-    <br>
-</div>
+How to make requests
+<script>
+    let xhr = new XMLHttpRequest();//XML http req
+    xhr.open('GET', "time", true);//This defines it is a get request for the directory "time"
+    xhr.send();
 
-<div style="display: none;" id="leftMenuIcon2">
-    <i style="position: relative; top: -10px;" class="far fa-plus-square"></i>
-</div>
-<div  style="display: none;" id="leftMenuID2" class="leftMenu2">
-    <div id="keyDIV">
-        <p id="keyText"> Please select an action to update your data </p>
-        <form>
-            <select id="addData" size=10>
-            </select>
-        </form>
-        <button type="button" onClick="addAction()" id="addActionButton">Add Action</button>
-    </div>
-    <br>
-</div>
+    xhr.onreadystatechange = function (e) {//As this is asynchronous this defines the function that will be called once the response has been recieved
+        if (xhr.readyState == 4 && xhr.status == 200) {//Ready state 4 is the state which means done and status 200 means no errors, so exectue the code below
+            let response = JSON.parse(xhr.responseText);//gets the json of the response
+            console.log(response);//Logs it in the console
+        }
+    };
 
-<div id="loginSectionID" class="loginSection">
-    <div id="loginInfo">
-        <h1><center><b>Sustaining Alive</b></center></h1>
-        Username:<br>
-        <input type="text" id="username"> <br>
-        Password: <br>
-        <input type="password" id="password"> <br>
-        <b><span id="loginIncorrect" style="color:#c77393; display: none" >Incorrect username or password.<br></span></b>
-        <button id="loginSubmit" style="font-size: 28px; border-radius: 6px;">Login</button><br>
+    //This seconds request makes a get request on a page with parameters so you could for example request the profile for
+    //user with id of 134234214 by doing a request on the url "/users?userID="134234214" (you cant actually do this in the program
+    //right now this is just an example of how you could use it)
 
-        <a onClick="showDiv(true);" href="#"  style="color:#b2e6d2">No account? Register here.</a>
-    </div>
-    <div id="registerInfo">
-        <h1>Registration</h1>
-        Username:<br>
-        <input type="text" id="registerUsername"> <br>
-        Password: <br>
-        <input type="password" id="registerPassword"> <br>
-        Repeat your password: <br>
-        <input type="password" id="registerRepeatPassword"> <br>
-        <b><span id="registerIncorrect" style="color:#c77393; display: none" ></span><br></b>
-        <button id="registerSubmit"  style="font-size: 28px; border-radius: 6px;">Register</button><br>
+    //This example below just sends data off to the server and the server responds with the same data
 
-        <a onClick="showDiv(false);" href="#"  style="color:#b2e6d2">Have an account? Log in here.</a>
-    </div>
-</div>
-<div id= "backgroundContainer" style="position: absolute; width: 100%; overflow: hidden; left: 0px; top: 0px; height: 100%;">
+    xhr2 = new XMLHttpRequest();//XML http req
+    xhr2.open('GET', "/data?user=me&id=0", true);//The difference this time is its making a request on the directroy data with paremeter user and id, the question mark represents the start of variables
+    xhr2.send();
 
-    <img id="base" class="background" src="/Asset/Sea_Background.png" style="background-color: #b2e6d2"/>
+    xhr2.onreadystatechange = function (e) {//As this is asynchronous this defines the function that will be called once the response has been recieved
+        if (xhr2.readyState == 4 && xhr2.status == 200) {//Ready state 4 is the state which means done and status 200 means no errors, so exectue the code below
+            console.log(xhr2.responseText);
+            let response = JSON.parse(xhr2.responseText);//gets the json of the response
+            console.log(response);//Logs it in the console
+        }
+    };
 
-    <img id="bg1" class="background1" src="/Asset/Sea_animation/Neutral_Sea-1.png" style="z-index: -10;" />
-    <img id="bg2" class="background2" src="/Asset/Sea_animation/Neutral_Sea-2.png" style="z-index: -10;" />
-    <img id="bg3" class="background3" src="/Asset/Sea_animation/Neutral_Sea-3.png" style="z-index: -10;" />
+    //Will do example on how to do post requests later on
+</script>
 
-    <img id="sand" class="background" src="/Asset/Neutral_Sea.png" style="z-index: -1;"/>
 
-    <img id="grit1" class="background1" src="/Asset/Sea_bed_grit/Neutral_Sea-1.png" />
-    <img id="grit2" class="background2" src="/Asset/Sea_bed_grit/Neutral_Sea-2.png" />
-    <img id="grit3" class="background3" src="/Asset/Sea_bed_grit/Neutral_Sea-3.png" />
-
-    <img id="kelp1" class="background1" src="/Asset/Kelp/Neutral_Sea-1.png" />
-    <img id="kelp2" class="background2" src="/Asset/Kelp/Neutral_Sea-2.png" />
-    <img id="kelp3" class="background3" src="/Asset/Kelp/Neutral_Sea-3.png" />
-
-    <img id="GoodBack1" class="backgroundGood" src="/Asset/Good_Sea-1.png" style="background-color: #b2e6d2;"/>
-
-    <img id="G_bg1" class="backgroundGood1" src="/Asset/GoodSeaAnimation/Good_Sea-2.png" style="z-index: -10"/>
-    <img id="G_bg2" class="backgroundGood2" src="/Asset/GoodSeaAnimation/Good_Sea-3.png" style="z-index: -10" />
-    <img id="G_bg3" class="backgroundGood3" src="/Asset/GoodSeaAnimation/Good_Sea-4.png" style="z-index: -10" />
-
-    <img id="GoodBack2" class="backgroundGood" src="/Asset/GoodSeaSand/Good_Sea-1.png" style="z-index: -10"/>
-    <img id="GoodBack3" class="backgroundGood" src="/Asset/GoodSeaSand/Good_Sea-2.png" style="z-index: -10"/>
-    <img id="GoodBack4" class="backgroundGood" src="/Asset/GoodSeaSand/Good_Sea-3.png" style="z-index: -10"/>
-
-    <img id="S1.2" class="backgroundGood" src="/Asset/Coral/Good_Sea-1.png" />
-    <img id="S1.3" class="backgroundGood" src="/Asset/Coral/Good_Sea-2.png" />
-    <img id="S2.1" class="backgroundGood1" src="/Asset/Coral/Good_Sea-3.png" />
-    <img id="S2.2" class="backgroundGood2" src="/Asset/Coral/Good_Sea-4.png" />
-    <img id="S2.3" class="backgroundGood3" src="/Asset/Coral/Good_Sea-5.png" />
-    <img id="S3.1" class="backgroundGood1" src="/Asset/Coral/Good_Sea-6.png" />
-    <img id="S3.2" class="backgroundGood2" src="/Asset/Coral/Good_Sea-7.png" />
-    <img id="S3.3" class="backgroundGood3" src="/Asset/Coral/Good_Sea-8.png" />
-
-    <img id="S1.1" class="backgroundGood1" src="/Asset/Seaweed_good/S1.1.png" />
-    <img id="S1.2" class="backgroundGood2" src="/Asset/Seaweed_good/S1.2.png" />
-    <img id="S1.3" class="backgroundGood3" src="/Asset/Seaweed_good/S1.3.png" />
-    <img id="S2.1" class="backgroundGood1" src="/Asset/Seaweed_good/S2.1.png" />
-    <img id="S2.2" class="backgroundGood2" src="/Asset/Seaweed_good/S2.2.png" />
-    <img id="S2.3" class="backgroundGood3" src="/Asset/Seaweed_good/S2.3.png" />
-    <img id="S3.1" class="backgroundGood1" src="/Asset/Seaweed_good/S3.1.png" />
-    <img id="S3.2" class="backgroundGood2" src="/Asset/Seaweed_good/S3.2.png" />
-    <img id="S3.3" class="backgroundGood3" src="/Asset/Seaweed_good/S3.3.png" />
-
-    <img id="Starfish1" class="backgroundGood1" src="/Asset/Starfish/Good_Sea-1.png" />
-    <img id="Starfish1" class="backgroundGood2" src="/Asset/Starfish/Good_Sea-2.png" />
-    <img id="Starfish1" class="backgroundGood3" src="/Asset/Starfish/Good_Sea-3.png" />
-
-    <img id="J1.1" class="backgroundGood1" src="/Asset/JellyFish/Good_Sea-1.png" />
-    <img id="J1.2" class="backgroundGood2" src="/Asset/JellyFish/Good_Sea-2.png" />
-    <img id="J1.3" class="backgroundGood3" src="/Asset/JellyFish/Good_Sea-3.png" />
-    <img id="J2.1" class="backgroundGood1" src="/Asset/JellyFish/Good_Sea-4.png" />
-    <img id="J2.2" class="backgroundGood2" src="/Asset/JellyFish/Good_Sea-5.png" />
-    <img id="J2.3" class="backgroundGood3" src="/Asset/JellyFish/Good_Sea-6.png" />
-
-    <img id="BadBack1" class="backgroundBad" src="/Asset/BackgroundBad.png" style="background-color: #b2e6d2;"/>
-    <img id="BadBack2" class="backgroundBad" src="/Asset/Pollution/Untitled_Artwork.png" style="opacity: 0.5"/>
-
-    <img id="Plant1" class="backgroundBad1" src="/Asset/Plant/Untitled_Artwork-1.png" />
-    <img id="Plant2" class="backgroundBad2" src="/Asset/Plant/Untitled_Artwork-2.png" />
-    <img id="Plant3" class="backgroundBad3" src="/Asset/Plant/Untitled_Artwork-3.png" />
-
-    <img id="Pollution1" class="backgroundBad1" src="/Asset/PollutedWater/Untitled_Artwork-1.png" style="opacity: 0.5"/>
-    <img id="Pollution2" class="backgroundBad2" src="/Asset/PollutedWater/Untitled_Artwork-2.png" style="opacity: 0.5"/>
-    <img id="Pollution3" class="backgroundBad3" src="/Asset/PollutedWater/Untitled_Artwork-3.png" style="opacity: 0.5"/>
-
-    <img id="Pollution1" class="backgroundBad1" src="/Asset/Cloudsofpollution/Untitled_Artwork-1.png" style="opacity: 0.5"/>
-    <img id="Pollution2" class="backgroundBad2" src="/Asset/Cloudsofpollution/Untitled_Artwork-2.png" style="opacity: 0.5"/>
-    <img id="Pollution3" class="backgroundBad3" src="/Asset/Cloudsofpollution/Untitled_Artwork-3.png" style="opacity: 0.5"/>
-
-    <img id="Skeletal" class="backgroundBad" src="/Asset/Fish/Untitled_Artwork.png" />
-
-</div>
-
-<div id="fish-container" style="overflow: hidden; width: 100%; position: absolute; height: 100%; left: 0px; right: 0px; z-index: 0;"></div>
 </body>
 </html>
 
-<!--
-    animation-name: appear;
-    animation-duration: 2s;
-    animation-iteration-count: 1;
--->
+

@@ -14,7 +14,10 @@ app.use(express.static("public"));
 
 //Assigning directories to redirect the incoming request to
 app.use("/",index);
-
+app.use("/time" ,function(req, res, next){
+    res.send(`{"date": ${Date.now().toString()}}`);
+});
+app.use("/data" , index);
 
 
 //This deals with when a directory has not been found

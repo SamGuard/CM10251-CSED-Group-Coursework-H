@@ -15,4 +15,11 @@ router.get("/", function (req, res, next){//When a get request is made on this d
     });
 });
 
+router.get("/data", function (req,res){
+   res.send(`{
+        "user": "${req.query.user}",
+        "id": ${req.query.id}       
+   }`);
+});
+
 module.exports = router;
