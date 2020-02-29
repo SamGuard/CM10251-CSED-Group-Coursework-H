@@ -33,7 +33,6 @@ How to make requests
 
     xhr2.onreadystatechange = function (e) {//As this is asynchronous this defines the function that will be called once the response has been recieved
         if (xhr2.readyState == 4 && xhr2.status == 200) {//Ready state 4 is the state which means done and status 200 means no errors, so exectue the code below
-            console.log(xhr2.responseText);
             let response = JSON.parse(xhr2.responseText);//gets the json of the response
             console.log(response);//Logs it in the console
         }
