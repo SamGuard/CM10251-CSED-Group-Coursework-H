@@ -22,4 +22,10 @@ router.get("/data", function (req,res){
    }`);
 });
 
+router.get("/JQueryExample.js", function(req, res, next){
+    fs.readFile(process.cwd() + "/JQueryExample.js", "utf8", function(err, data){
+        res.send(data);//Send data back to user
+    });
+});
+
 module.exports = router;

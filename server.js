@@ -1,7 +1,7 @@
 const https = require('https');
 const fs = require('fs');
 const app = require('./app.js');
-
+const port = process.env.PORT || 3000;
 
 
 const options = {
@@ -11,7 +11,7 @@ const options = {
 
 var server = https.createServer(options, app);
 
-server.listen(3000);
+server.listen(port);
 
 console.log("server opened on port 3000");
 console.log("Go to https://localhost:3000 make sure you include the https otherwise it won't work");
