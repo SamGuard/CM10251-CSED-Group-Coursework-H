@@ -2,6 +2,7 @@
 <html lang="en" dir="ltr">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fit track</title>
   <link rel="stylesheet" type="text/css" href="main.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
@@ -14,6 +15,7 @@
 </script>
 </head>
 <body>
+  <div class="background-image"></div>
   <div class="wrapper">
     <div class="login">
       <div id="tabs">
@@ -33,17 +35,16 @@
         <div id="register">
           <div class="line"></div>
           <form>
-            <input type="text" placeholder="Username" autofocus/>
-            <input type="text" placeholder="Email"/>
-            <input type="password" placeholder="Password" />
-            <input type="password" placeholder="Confirm Password" />
+            <input required placeholder="Username" autofocus/>
+            <input required type="email" placeholder="Email"/>
+            <input required type="password" pattern="((?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,})" placeholder="Password"/>
+            <input required type="password" pattern="((?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,})" placeholder="Confirm Password"/>
             <button>Register</button>
           </form>
         </div>
       </div>
     </div>
   </div>
-  <script src="main.js"></script>
   <script>
   let xhr = new XMLHttpRequest();//XML http req
   xhr.open('GET', "time", true);//This defines it is a get request for the directory "time"
