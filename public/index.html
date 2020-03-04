@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="utf-8">
+  <title>Fit track</title>
+  <link rel="stylesheet" type="text/css" href="main.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="JQueryExample.js"></script>
+</head>
+
+<body>
+  <div class="wrapper">
+    <form class="login">
+      <p class="title">Log in</p>
+      <input type="text" placeholder="Username" autofocus/>
+      <input type="password" placeholder="Password" />
+      <a href="#">Forgot your password?</a>
+      <button>
+        <span class="state">Log in</span>
+      </button>
+    </form>
+</div>
+
+<p>How to make requests in console</p>
+<script>
+let xhr = new XMLHttpRequest();//XML http req
+xhr.open('GET', "time", true);//This defines it is a get request for the directory "time"
+xhr.send();
+
+xhr.onreadystatechange = function (e) {//As this is asynchronous this defines the function that will be called once the response has been recieved
+  if (xhr.readyState == 4 && xhr.status == 200) {//Ready state 4 is the state which means done and status 200 means no errors, so exectue the code below
+    let response = JSON.parse(xhr.responseText);//gets the json of the response
+    console.log(response);//Logs it in the console
+  }
+};
+
+//This seconds request makes a get request on a page with parameters so you could for example request the profile for
+//user with id of 134234214 by doing a request on the url "/users?userID="134234214" (you cant actually do this in the program
+//right now this is just an example of how you could use it)
+
+//This example below just sends data off to the server and the server responds with the same data
+
+xhr2 = new XMLHttpRequest();//XML http req
+xhr2.open('GET', "/data?user=me&id=0", true);//The difference this time is its making a request on the directroy data with paremeter user and id, the question mark represents the start of variables
+xhr2.send();
+
+xhr2.onreadystatechange = function (e) {//As this is asynchronous this defines the function that will be called once the response has been recieved
+  if (xhr2.readyState == 4 && xhr2.status == 200) {//Ready state 4 is the state which means done and status 200 means no errors, so exectue the code below
+    let response = JSON.parse(xhr2.responseText);//gets the json of the response
+    console.log(response);//Logs it in the console
+  }
+};
+
+//Will do example on how to do post requests later on
+RequestData();
+
+
+</script>
+
+
+</body>
+</html>
