@@ -30,21 +30,21 @@ $( function() {
                 </ul>
                 <div id="login">
                     <div class="line"></div>
-                    <form>
-                        <input type="text" placeholder="Username" autofocus/>
-                        <input type="password" placeholder="Password" />
+                    <form action="#">
+                        <input type="text"  id="loginUsernameInput" placeholder="Username" autofocus/>
+                        <input type="password" id="loginPasswordInput"  placeholder="Password" />
                         <a href="/forgotpassword">Forgot your password?</a>
-                        <button>Log in</button>
+                        <button onclick="signin()">Log in</button>
                     </form>
                 </div>
                 <div id="register">
                     <div class="line"></div>
-                    <form>
-                        <input type="text" placeholder="Username" autofocus/>
+                    <form action="#">
+                        <input type="text" id="usernameInput" placeholder="Username" autofocus/>
                         <input type="text" id="emailInput" placeholder="Email"/>
                         <input type="password" id="passwordInput" placeholder="Password"/>
                         <input type="password" id="confirmPasswordInput" placeholder="Confirm Password"/>
-                        <button>Register</button>
+                        <button onclick="signup()">Register</button>
                     </form>
                 </div>
             </div>
@@ -52,36 +52,16 @@ $( function() {
     </div>
     <script src="validation.js"></script>
     <script>
-    let xhr = new XMLHttpRequest();//XML http req
-    xhr.open('GET', "time", true);//This defines it is a get request for the directory "time"
-    xhr.send();
-
-    xhr.onreadystatechange = function (e) {//As this is asynchronous this defines the function that will be called once the response has been recieved
-        if (xhr.readyState == 4 && xhr.status == 200) {//Ready state 4 is the state which means done and status 200 means no errors, so exectue the code below
-            let response = JSON.parse(xhr.responseText);//gets the json of the response
-            console.log(response);//Logs it in the console
-        }
+    function signup(e){
+        $.post("/register", {username: document.getElementById("usernameInput").value, email: document.getElementById("emailInput").value, password: document.getElementById("passwordInput").value}, function (data, status) {
+            console.log(data);
+        });
     };
-
-    //This seconds request makes a get request on a page with parameters so you could for example request the profile for
-    //user with id of 134234214 by doing a request on the url "/users?userID="134234214" (you cant actually do this in the program
-    //right now this is just an example of how you could use it)
-
-    //This example below just sends data off to the server and the server responds with the same data
-
-    xhr2 = new XMLHttpRequest();//XML http req
-    xhr2.open('GET', "/data?user=me&id=0", true);//The difference this time is its making a request on the directroy data with paremeter user and id, the question mark represents the start of variables
-    xhr2.send();
-
-    xhr2.onreadystatechange = function (e) {//As this is asynchronous this defines the function that will be called once the response has been recieved
-        if (xhr2.readyState == 4 && xhr2.status == 200) {//Ready state 4 is the state which means done and status 200 means no errors, so exectue the code below
-            let response = JSON.parse(xhr2.responseText);//gets the json of the response
-            console.log(response);//Logs it in the console
-        }
-    };
-
-    //Will do example on how to do post requests later on
-    RequestData();
+    function signin(){
+        $.post("/login", {username: document.getElementById("loginUsernameInput").value, password: document.getElementById("loginPasswordInput").value}, function (data, status) {
+            console.log(data);
+        });
+    }
 </script>
 </body>
 </html>
