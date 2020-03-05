@@ -132,3 +132,5 @@ yarn-error.log*
 #IDEs
 .idea
 
+/database/fitness-tracker.db
+
