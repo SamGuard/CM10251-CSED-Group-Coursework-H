@@ -30,11 +30,11 @@ $( function() {
                 </ul>
                 <div id="login">
                     <div class="line"></div>
-                    <form onsubmit="signin()">
-                        <input type="text" placeholder="Username" autofocus/>
-                        <input type="password" placeholder="Password" />
+                    <form action="#">
+                        <input type="text"  id="loginUsernameInput" placeholder="Username" autofocus/>
+                        <input type="password" id="loginPasswordInput"  placeholder="Password" />
                         <a href="/forgotpassword">Forgot your password?</a>
-                        <button>Log in</button>
+                        <button onclick="signin()">Log in</button>
                     </form>
                 </div>
                 <div id="register">
@@ -58,7 +58,9 @@ $( function() {
         });
     };
     function signin(){
-
+        $.post("/login", {username: document.getElementById("loginUsernameInput").value, password: document.getElementById("loginPasswordInput").value}, function (data, status) {
+            console.log(data);
+        });
     }
 </script>
 </body>

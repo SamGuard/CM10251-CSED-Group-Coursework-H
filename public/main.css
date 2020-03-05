@@ -39,7 +39,7 @@ input {
     margin-bottom: 10px;
     width: 100%;
     border: 1px solid #ddd;
-    transition: all 0.4s ease-in;
+    transition: all 0.2s ease-in;
 }
 
 input:focus {
