@@ -9,4 +9,3 @@ server.listen(port);
 
 console.log("server opened on port 3000");
 console.log("Go to localhost:3000");
-console.log("Your browser will probably warn you that the certificate is invalid or self signed, just click continue (trust me its safe)");
