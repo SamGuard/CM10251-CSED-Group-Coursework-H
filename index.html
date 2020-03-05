@@ -1,50 +1,81 @@
 <!DOCTYPE html>
-<html>
+<html lang="en" dir="ltr">
 <head>
-    <title>Fit track</title>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="JQueryExample.js"></script>
-
-</head>
-
-<body>
-
-How to make requests
-<script>
-    let xhr = new XMLHttpRequest();//XML http req
-    xhr.open('GET', "time", true);//This defines it is a get request for the directory "time"
-    xhr.send();
-
-    xhr.onreadystatechange = function (e) {//As this is asynchronous this defines the function that will be called once the response has been recieved
-        if (xhr.readyState == 4 && xhr.status == 200) {//Ready state 4 is the state which means done and status 200 means no errors, so exectue the code below
-            let response = JSON.parse(xhr.responseText);//gets the json of the response
-            console.log(response);//Logs it in the console
-        }
-    };
-
-    //This seconds request makes a get request on a page with parameters so you could for example request the profile for
-    //user with id of 134234214 by doing a request on the url "/users?userID="134234214" (you cant actually do this in the program
-    //right now this is just an example of how you could use it)
-
-    //This example below just sends data off to the server and the server responds with the same data
-
-    xhr2 = new XMLHttpRequest();//XML http req
-    xhr2.open('GET', "/data?user=me&id=0", true);//The difference this time is its making a request on the directroy data with paremeter user and id, the question mark represents the start of variables
-    xhr2.send();
-
-    xhr2.onreadystatechange = function (e) {//As this is asynchronous this defines the function that will be called once the response has been recieved
-        if (xhr2.readyState == 4 && xhr2.status == 200) {//Ready state 4 is the state which means done and status 200 means no errors, so exectue the code below
-            let response = JSON.parse(xhr2.responseText);//gets the json of the response
-            console.log(response);//Logs it in the console
-        }
-    };
-
-    //Will do example on how to do post requests later on
-    RequestData();
-
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fit track</title>
+  <link rel="stylesheet" type="text/css" href="main.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="JQueryExample.js"></script>
+  <script>
+  $( function() {
+    $( "#tabs" ).tabs();
+  } );
 </script>
+</head>
+<body>
+  <div class="background-image"></div>
+  <div class="wrapper">
+    <div class="login">
+      <div id="tabs">
+        <ul class="tabs">
+          <li><a href="#login" class="title">Log in</a></li>
+          <li><a href="#register" class="title">Sign up</a></li>
+        </ul>
+        <div id="login">
+          <div class="line"></div>
+          <form>
+            <input type="text" placeholder="Username" autofocus/>
+            <input type="password" placeholder="Password" />
+            <a href="/forgotpassword">Forgot your password?</a>
+            <button>Log in</button>
+          </form>
+        </div>
+        <div id="register">
+          <div class="line"></div>
+          <form>
+            <input required placeholder="Username" autofocus/>
+            <input required type="email" placeholder="Email"/>
+            <input required type="password" pattern="((?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,})" placeholder="Password"/>
+            <input required type="password" pattern="((?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,})" placeholder="Confirm Password"/>
+            <button>Register</button>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script>
+  let xhr = new XMLHttpRequest();//XML http req
+  xhr.open('GET', "time", true);//This defines it is a get request for the directory "time"
+  xhr.send();
 
+  xhr.onreadystatechange = function (e) {//As this is asynchronous this defines the function that will be called once the response has been recieved
+    if (xhr.readyState == 4 && xhr.status == 200) {//Ready state 4 is the state which means done and status 200 means no errors, so exectue the code below
+      let response = JSON.parse(xhr.responseText);//gets the json of the response
+      console.log(response);//Logs it in the console
+    }
+  };
 
+  //This seconds request makes a get request on a page with parameters so you could for example request the profile for
+  //user with id of 134234214 by doing a request on the url "/users?userID="134234214" (you cant actually do this in the program
+  //right now this is just an example of how you could use it)
+
+  //This example below just sends data off to the server and the server responds with the same data
+
+  xhr2 = new XMLHttpRequest();//XML http req
+  xhr2.open('GET', "/data?user=me&id=0", true);//The difference this time is its making a request on the directroy data with paremeter user and id, the question mark represents the start of variables
+  xhr2.send();
+
+  xhr2.onreadystatechange = function (e) {//As this is asynchronous this defines the function that will be called once the response has been recieved
+    if (xhr2.readyState == 4 && xhr2.status == 200) {//Ready state 4 is the state which means done and status 200 means no errors, so exectue the code below
+      let response = JSON.parse(xhr2.responseText);//gets the json of the response
+      console.log(response);//Logs it in the console
+    }
+  };
+
+  //Will do example on how to do post requests later on
+  RequestData();
+</script>
 </body>
 </html>
