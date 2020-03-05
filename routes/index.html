@@ -1,6 +1,11 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
+    <!-- <script>
+    if (location.protocol !== 'https:') {
+      location.replace(`https:${location.href.substring(location.protocol.length)}`);
+    }
+  </script> -->
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fit track</title>
@@ -35,16 +40,17 @@
         <div id="register">
           <div class="line"></div>
           <form>
-            <input required placeholder="Username" autofocus/>
-            <input required type="email" placeholder="Email"/>
-            <input required type="password" pattern="((?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,})" placeholder="Password"/>
-            <input required type="password" pattern="((?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,})" placeholder="Confirm Password"/>
+            <input type="text" placeholder="Username" autofocus/>
+            <input type="email" placeholder="Email"/>
+            <input type="password" placeholder="Password"/>
+            <input type="password" placeholder="Confirm Password"/>
             <button>Register</button>
           </form>
         </div>
       </div>
     </div>
   </div>
+  <script src="validation.js"></script>
   <script>
   let xhr = new XMLHttpRequest();//XML http req
   xhr.open('GET', "time", true);//This defines it is a get request for the directory "time"
