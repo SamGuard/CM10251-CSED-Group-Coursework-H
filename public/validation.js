@@ -17,6 +17,9 @@ document.getElementById("passwordInput").onchange = function() {
 };
 document.getElementById("confirmPasswordInput").onchange = function() {
     passwordsSame(document.getElementById("passwordInput"), document.getElementById("confirmPasswordInput"))
+    if (document.getElementById("confirmPasswordInput").value = ""){
+        error(document.getElementById("confirmPasswordInput"))
+    }
 };
 
 function passwordsSame(firstPasswordElement, confirmPasswordElement){
