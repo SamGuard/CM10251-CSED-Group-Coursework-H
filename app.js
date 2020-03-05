@@ -7,13 +7,16 @@ const bodyparse = require("body-parser");
 
 //Defining the local directory of the routes
 const index = require('./index');
-
+const login = require("./login");
+const register = require("./register");
 
 app.use(bodyparse());
 app.use(express.static("public"));
 
 //Assigning directories to redirect the incoming request to
 app.use("/",index);
+app.use("/login", login);
+app.use("/register", register);
 app.use("/time" ,function(req, res, next){
     res.send(`{"date": ${Date.now().toString()}}`);
 });

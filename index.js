@@ -1,7 +1,7 @@
-express = require("express");
+const express = require("express");
 fs = require("fs");
 
-router = express.Router();
+let router = express.Router();
 
 let homePage;
 
