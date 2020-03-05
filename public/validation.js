@@ -12,18 +12,16 @@ document.getElementById("passwordInput").onchange = function() {
     if (/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}/.test(input.value)){
         success(input)
     } else{
+        error(document.getElementById("confirmPasswordInput"))
         error(input)
     }
 };
 document.getElementById("confirmPasswordInput").onchange = function() {
     passwordsSame(document.getElementById("passwordInput"), document.getElementById("confirmPasswordInput"))
-    if (document.getElementById("confirmPasswordInput").value = ""){
-        error(document.getElementById("confirmPasswordInput"))
-    }
 };
 
 function passwordsSame(firstPasswordElement, confirmPasswordElement){
-    if (firstPasswordElement.value != confirmPasswordElement.value){
+    if (firstPasswordElement.value != confirmPasswordElement.value || confirmPasswordElement.value == ""){
         error(confirmPasswordElement);
     } else {
         success(confirmPasswordElement)
