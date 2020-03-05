@@ -48,12 +48,6 @@ input:focus {
   border-color: #2196F3;
 }
 
-input:required:invalid, input:focus:invalid {
-  /* insert your own styles for invalid form input */
-  outline: red;
-}
-
-
 a {
   font-size: 0.8em;
   color: #2196F3;
