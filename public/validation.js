@@ -31,6 +31,21 @@ document.getElementById("confirmPasswordInput").onchange = function() {
     passwordsSame(document.getElementById("passwordInput"), document.getElementById("confirmPasswordInput"))
 };
 
+function canRegister(usernameInputID, emailInputID, passwordInputID, confirmPasswordInputID){
+    inputs = [
+        document.getElementById(usernameInputID),
+        document.getElementById(emailInputID),
+        document.getElementById(passwordInputID),
+        document.getElementById(confirmPasswordInputID)
+    ]
+    for (var i = 0; i < inputs.length; i++) {
+        if(inputs[i].style.color != "green"){
+            return false;
+        }
+    }
+    return true
+}
+
 function passwordsSame(firstPasswordElement, confirmPasswordElement){
     if (firstPasswordElement.value != confirmPasswordElement.value || confirmPasswordElement.value == ""){
         error(confirmPasswordElement);

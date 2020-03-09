@@ -1,18 +1,13 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
-    <script>
-    if (location.protocol !== 'https:') {
-    location.replace(`https:${location.href.substring(location.protocol.length)}`);
-}
-</script>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Fit track</title>
 <link rel="stylesheet" type="text/css" href="main.css">
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-<script src="JQueryExample.js"></script>
+<script src="https.js"></script>
 <script>
 $( function() {
     $( "#tabs" ).tabs();
@@ -30,8 +25,8 @@ $( function() {
                 </ul>
                 <div id="login">
                     <div class="line"></div>
-                    <form action="#">
-                        <input type="text"  id="loginUsernameInput" placeholder="Username" autofocus/>
+                    <form action="javascript:void(0)">
+                        <input type="text" id="loginUsernameInput" placeholder="Username" autofocus/>
                         <input type="password" id="loginPasswordInput"  placeholder="Password" />
                         <a href="/forgotpassword">Forgot your password?</a>
                         <button onclick="signin()">Log in</button>
@@ -39,7 +34,7 @@ $( function() {
                 </div>
                 <div id="register">
                     <div class="line"></div>
-                    <form action="#">
+                    <form action="javascript:void(0)">
                         <input type="text" id="usernameInput" placeholder="Username" autofocus/>
                         <input type="text" id="emailInput" placeholder="Email"/>
                         <input type="password" id="passwordInput" placeholder="Password"/>
@@ -52,14 +47,16 @@ $( function() {
     </div>
     <script src="validation.js"></script>
     <script>
-    function signup(e){
-        $.post("/register", {username: document.getElementById("usernameInput").value, email: document.getElementById("emailInput").value, password: document.getElementById("passwordInput").value}, function (data, status) {
-            console.log(data);
-        });
+    function signup(){
+        if (canRegister("usernameInput", "emailInput", "passwordInput", "confirmPasswordInput")){
+            $.post("/register", {username: document.getElementById("usernameInput").value, email: document.getElementById("emailInput").value, password: document.getElementById("passwordInput").value}, function (data, status) {
+                console.log("sent")
+            });
+        }
     };
     function signin(){
         $.post("/login", {username: document.getElementById("loginUsernameInput").value, password: document.getElementById("loginPasswordInput").value}, function (data, status) {
-            console.log(data);
+            console.log("sent");
         });
     }
 </script>

@@ -1,0 +1,58 @@
+body,html {
+    font-family: "Open Sans", sans-serif;
+    height: 100%;
+    margin:0;
+    background: #00a8e8;
+}
+
+* {
+    box-sizing: border-box;
+}
+
+ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    background-color: #333;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.3);
+}
+
+li {
+    float: left;
+}
+
+li a {
+    display: block;
+    color: white;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+
+li a:hover:not(.ui-state-active) {
+    background-color: #111;
+}
+
+.ui-state-active {
+    background-color: #004da5;
+}
+
+.flexbox {
+    margin-top:50px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap : wrap;
+    width: 100%;
+}
+
+/* Add a card effect for articles */
+.card {
+    flex-grow: 1;
+    margin: 1%;
+    padding: 1%;
+    background-color: white;
+    box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.3);
+}
