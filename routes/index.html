@@ -1,17 +1,24 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Fit track</title>
-<link rel="stylesheet" type="text/css" href="main.css">
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
-<script src="https.js"></script>
-<script>
-$( function() {
-    $( "#tabs" ).tabs();
-} );
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fit track</title>
+    <!-- check if the user is logged in already -->
+    <script>
+    if (document.cookie != "" && document.cookie.split(";")[0].split("=")[1] != ""){
+        window.location.pathname = '/home'
+    }
+    </script>
+    <link rel="stylesheet" type="text/css" href="main.css">
+    <link rel="stylesheet" type="text/css" href="colours.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https.js"></script>
+    <script>
+    $( function() {
+        $( "#tabs" ).tabs();
+    } );
 </script>
 </head>
 <body>
@@ -28,6 +35,7 @@ $( function() {
                     <form action="javascript:void(0)">
                         <input type="text" id="loginUsernameInput" placeholder="Username" autofocus/>
                         <input type="password" id="loginPasswordInput"  placeholder="Password" />
+                        <div style="display: none;" class="errorMessage" id="loginError">Not valid username or password.</div>
                         <a href="/forgotpassword">Forgot your password?</a>
                         <button onclick="signin()">Log in</button>
                     </form>
@@ -35,10 +43,15 @@ $( function() {
                 <div id="register">
                     <div class="line"></div>
                     <form action="javascript:void(0)">
-                        <input type="text" id="usernameInput" placeholder="Username" autofocus/>
-                        <input type="text" id="emailInput" placeholder="Email"/>
-                        <input type="password" id="passwordInput" placeholder="Password"/>
-                        <input type="password" id="confirmPasswordInput" placeholder="Confirm Password"/>
+                        <input type="text" oninput='checkUsername("usernameInput", "usernameError")' id="usernameInput" placeholder="Username" autofocus/>
+                        <div style="display: none;" class="errorMessage" id="usernameError">Username must be less than 25 characters long.</div>
+                        <input type="text" oninput='checkEmail("emailInput", "emailError")' id="emailInput" placeholder="Email"/>
+                        <div style="display: none;"  class="errorMessage" id="emailError">Email must be a valid email.</div>
+                        <input type="password" oninput='checkPassword("passwordInput", "passwordError")' id="passwordInput" placeholder="Password"/>
+                        <div style="display: none;"  class="errorMessage" id="passwordError">Password must have atleast: 8 characters, 1 special character, 1 uppercase letter and 1 lower case letter</div>
+                        <input type="password" oninput='passwordsSame(document.getElementById("passwordInput"), document.getElementById("confirmPasswordInput"))' id="confirmPasswordInput" placeholder="Confirm Password"/>
+                        <div style="display: none;"  class="errorMessage" id="confirmPasswordError">Passwords must match and be valid.</div>
+                        <div style="display: none;"  class="errorMessage" id="registerError"></div>
                         <button onclick="signup()">Register</button>
                     </form>
                 </div>
@@ -50,13 +63,32 @@ $( function() {
     function signup(){
         if (canRegister("usernameInput", "emailInput", "passwordInput", "confirmPasswordInput")){
             $.post("/register", {username: document.getElementById("usernameInput").value, email: document.getElementById("emailInput").value, password: document.getElementById("passwordInput").value}, function (data, status) {
-                console.log("sent")
+                dataJson = JSON.parse(data);
+                if (dataJson.userRegistered){
+                    document.cookie = "username:password="+document.getElementById("usernameInput").value+":"+document.getElementById("passwordInput").value+"; expires=0; path=/";
+                    window.location.pathname = '/home'
+                } else {
+                    console.log("not registered")
+                    document.getElementById('registerError').innerHTML = dataJson.reason
+                    error(document.getElementById('usernameInput'),document.getElementById("registerError"))
+                    error(document.getElementById('emailInput'),document.getElementById("registerError"))
+                    error(document.getElementById('passwordInput'),document.getElementById("registerError"))
+                    error(document.getElementById('confirmPasswordInput'),document.getElementById("registerError"))
+                }
             });
         }
-    };
+    }
     function signin(){
         $.post("/login", {username: document.getElementById("loginUsernameInput").value, password: document.getElementById("loginPasswordInput").value}, function (data, status) {
-            console.log("sent");
+            dataJson = JSON.parse(data);
+            if (dataJson.loggedIn){
+                document.cookie = "username:password="+document.getElementById("loginUsernameInput").value+":"+document.getElementById("loginPasswordInput").value+"; expires=0; path=/";
+                window.location.pathname = '/home'
+            } else {
+                console.log("not logged in")
+                error(document.getElementById('loginUsernameInput'),document.getElementById("loginError"))
+                error(document.getElementById('loginPasswordInput'),document.getElementById("loginError"))
+            }
         });
     }
 </script>

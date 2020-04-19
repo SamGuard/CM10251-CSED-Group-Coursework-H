@@ -1,35 +1,45 @@
-document.getElementById("usernameInput").onchange = function() {
-    var input = document.getElementById("usernameInput");
+function checkUsername(usernameInputID, usernameErrorID) {
+    var input = document.getElementById(usernameInputID);
+    var errorElement = document.getElementById(usernameErrorID);
     if (input.value.length < 25 && input.value.length != 0){
-        success(input)
+        success(input,errorElement)
     } else{
-        error(input)
+        document.getElementById("usernameError").display = "";
+        error(input,errorElement)
     }
 };
 
-document.getElementById("emailInput").onchange = function() {
-    var input = document.getElementById("emailInput");
+function checkEmail(emailInputID, emailErrorID) {
+    var input = document.getElementById(emailInputID);
+    var errorElement = document.getElementById(emailErrorID);
     if (/^.+@.+\..+/.test(input.value)){
-        success(input)
+        success(input,errorElement)
     } else{
-        error(input)
+        error(input,errorElement)
     }
 };
 
-document.getElementById("passwordInput").onchange = function() {
-    var input = document.getElementById("passwordInput");
+function checkPassword(passwordInputID, passwordErrorID) {
+    var input = document.getElementById(passwordInputID);
+    var errorElement = document.getElementById(passwordErrorID);
     passwordsSame(input, document.getElementById("confirmPasswordInput"))
-    if (/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}/.test(input.value)){
-        success(input)
+    if (/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(input.value) && input.value.length >= 8){
+        success(input,errorElement)
     } else{
-        error(document.getElementById("confirmPasswordInput"))
-        error(input)
+        error(document.getElementById("confirmPasswordInput"),errorElement)
+        error(input,errorElement)
     }
 };
 
-document.getElementById("confirmPasswordInput").onchange = function() {
-    passwordsSame(document.getElementById("passwordInput"), document.getElementById("confirmPasswordInput"))
-};
+
+function passwordsSame(firstPasswordElement, confirmPasswordElement){
+    var errorElement = document.getElementById("confirmPasswordError");
+    if (firstPasswordElement.value != confirmPasswordElement.value || confirmPasswordElement.value == ""){
+        error(confirmPasswordElement, errorElement);
+    } else {
+        success(confirmPasswordElement, errorElement)
+    }
+}
 
 function canRegister(usernameInputID, emailInputID, passwordInputID, confirmPasswordInputID){
     inputs = [
@@ -46,20 +56,18 @@ function canRegister(usernameInputID, emailInputID, passwordInputID, confirmPass
     return true
 }
 
-function passwordsSame(firstPasswordElement, confirmPasswordElement){
-    if (firstPasswordElement.value != confirmPasswordElement.value || confirmPasswordElement.value == ""){
-        error(confirmPasswordElement);
-    } else {
-        success(confirmPasswordElement)
-    }
+function forceBeInt(element){
+        element.value = element.value.match(/[0-9]+([\.,][0-9]*)?/g);
 }
 
-function error(element){
+function error(element, errorElement){
+    errorElement.style.display = "";
     element.style.color = "red";
     element.style.outline =  "2px solid red";
 }
 
-function success(element){
+function success(element, errorElement){
+    errorElement.style.display = "none";
     element.style.color = "green";
     element.style.outline =  "2px solid green";
 }

@@ -1,5 +1,6 @@
+//Index deals with sending back the correct page when requested
 const express = require("express");
-fs = require("fs");
+const fs = require("fs");
 
 let router = express.Router();
 
@@ -30,24 +31,6 @@ router.get("/home", function (req, res, next){//When a get request is made on th
 
     res.send(homePage);
 
-});
-
-
-
-/*
-These are just for testing ignore below this.
-*/
-router.get("/data", function (req,res){
-   res.send(`{
-        "user": "${req.query.user}",
-        "id": ${req.query.id}       
-   }`);
-});
-
-router.get("/JQueryExample.js", function(req, res, next){
-    fs.readFile(process.cwd() + "/JQueryExample.js", "utf8", function(err, data){
-        res.send(data);//Send data back to user
-    });
 });
 
 module.exports = router;

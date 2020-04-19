@@ -1,6 +1,8 @@
-express = require('express');//Used for incoming http requests
+//This is where the routing for incoming connections are defined
+
+express = require('express');//Used for dealing with incoming http requests
 const app = express();
-const bodyparse = require("body-parser");
+const bodyparse = require("body-parser");//Middleware function used to parse the incoming connection
 
 
 
@@ -9,6 +11,7 @@ const bodyparse = require("body-parser");
 const index = require('./index');
 const login = require("./login");
 const register = require("./register");
+const data = require("./data");
 
 app.use(bodyparse());
 app.use(express.static("public"));
@@ -17,6 +20,7 @@ app.use(express.static("public"));
 app.use("/",index);
 app.use("/login", login);
 app.use("/register", register);
+app.use("/data", data);
 app.use("/time" ,function(req, res, next){
     res.send(`{"date": ${Date.now().toString()}}`);
 });

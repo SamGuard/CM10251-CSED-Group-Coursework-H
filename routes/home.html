@@ -4,43 +4,180 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Fit track</title>
+    <!-- check if the user is logged in already -->
+    <script>
+    if (document.cookie == "" | document.cookie.split(";")[0].split("=")[1] == ""){
+        window.location.pathname = '/'
+    }
+    </script>
     <link rel="stylesheet" type="text/css" href="home.css">
+    <link rel="stylesheet" type="text/css" href="colours.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://d3js.org/d3.v4.js"></script>
+    <script src="genCards.js"></script>
     <script src="https.js"></script>
     <script>
     $( function() {
         $( "#tabs" ).tabs();
-    } );
+        $( "#inputs" ).tabs();
+    });
     </script>
 </head>
 <body>
     <div id="tabs">
-        <ul class="leftnav">
+        <ul class="topnav">
             <li><a href="#Home">Home</a></li>
             <li><a href="#Leaderboard">Leaderboard</a></li>
+            <li style="margin-left:auto;"><a id="placeUsername"></a><script>document.getElementById('placeUsername').innerHTML =  document.cookie.split(";")[0].split("=")[1].split(":")[0]</script></li>
+            <li><a onclick="signout()">Sign out</a></li>
         </ul>
         <!-- home page-->
         <div id="Home">
-            <div class="flexbox">
+            <div id="cards" class="flexbox">
                 <!-- each card is where we will keep the data to be displayed-->
-                <!-- copy cards to make more -->
-                <div class="card">
-                    <h2>TITLE HEADING</h2>
-                    <h5>Title description, Dec 7, 2017</h5>
-                    <div class="graph" style="width:500px;height:200px;">Image</div>
-                    <p>Some text..</p>
-                    <p>poo</p>
+                <!--genCards.js can be used to add cards to the home screen-->
+                <!--inputs-->
+                <div id="inputs" class="card">
+                    <ul class="cardTabs">
+                        <li><a href="#newSport">Input a new activity</a></li>
+                        <li><a href="#fromID">Get an activity from id</a></li>
+                    </ul>
+                    <div id="newSport">
+                        <div class="inputFlex">
+                            <input class="inputPositioning" type="text" id="sport" placeholder="Sport Name (e.g. Sprinting)*" autofocus/>
+                            <input class="inputPositioning" type="text" id="description" placeholder="Sport description (e.g. 200m)"/>
+                            <input class="inputPositioning" type="text" id="unit" placeholder="Unit (e.g. Seconds or s)*"/>
+                            <div  class="inputPositioning">
+                                <input type="radio" id="ascending" name="ascdec" value="ascending" checked>
+                                <label for="ascending">Ascending</label><br>
+                                <input type="radio" id="decending" name="ascdec" value="decending">
+                                <label for="decending">Decending</label><br>
+                            </div>
+                            <div style="display: none;"  class="errorMessage" id="createSportError">Invalid ID</div>
+                            <button  onclick="createNewSport()">Submit</button>
+                            <script>
+                            function createNewSport(){
+                                document.getElementById('description').value = document.getElementById('description').value == "" ? " " : document.getElementById('description').value
+                                cookiedata = document.cookie.split(";")[0].split("=")[1].split(":")
+                                $.post("/data/user-sport-data", {username: cookiedata[0], password: cookiedata[1], sportName:document.getElementById('sport').value, sportDesc:document.getElementById('description').value, sportUnit:document.getElementById('unit').value, sportAsc:document.getElementById("ascending").checked}, function (data, status) {
+                                    dataJson = JSON.parse(data);
+                                    if (dataJson.success){
+                                        success(document.getElementById('sport'), document.getElementById('createSportError'))
+                                        success(document.getElementById('description'), document.getElementById('createSportError'))
+                                        success(document.getElementById('unit'), document.getElementById('createSportError'))
+                                        window.location.reload(false);
+                                    } else{
+                                        document.getElementById('createSportError').innerHTML = dataJson.reason
+                                        error(document.getElementById('sport'), document.getElementById('createSportError'))
+                                        error(document.getElementById('description'), document.getElementById('createSportError'))
+                                        error(document.getElementById('unit'), document.getElementById('createSportError'))
+                                    }
+                                });
+                            }
+                            </script>
+                        </div>
+                        <div class="errorMessage">Required fields marked by *</div>
+                    </div>
+                    <div id="fromID" class="row">
+                        <input type="text" id="sportID" placeholder="Sport ID"/>
+                        <button  onclick="addUserToSport(document.getElementById('sportID').value)">Submit</button>
+                        <div style="display: none;"  class="errorMessage" id="sportIDError">Invalid ID</div>
+                        <script>
+                        function addUserToSport(id){
+                            cookiedata = document.cookie.split(";")[0].split("=")[1].split(":")
+                            $.post("/data/add-user-to-sport", {username: cookiedata[0], password: cookiedata[1], sportID:id}, function (data, status) {
+                                dataJson = JSON.parse(data);
+                                if (dataJson.success){
+                                    success(document.getElementById('sportID'), document.getElementById('sportIDError'))
+                                    window.location.reload(false);
+                                } else{
+                                    document.getElementById('sportIDError').innerHTML = dataJson.reason
+                                    error(document.getElementById('sportID'), document.getElementById('sportIDError'))
+                                }
+                            });
+                        }
+                        </script>
+                    </div>
                 </div>
+                <!--inputs-->
 
             </div>
         </div>
-    </div>
-    <!--leaderboard page-->
-    <div id="Leaderboard">
+        <!--leaderboard page-->
+        <div id="Leaderboard">
+            <div id="inputsLeaderboard" class="card">
+                <ul class="cardTabs">
+                    <li><a href="#searchLeaderboard">Search for a leaderboard</a></li>
+                    <li><a href="#joinLeaderboard">Join a leaderboard</a></li>
+                </ul>
+                <div class="inputFlex" id="searchLeaderboard">
+                    <input class="inputPositioning" type="text" id="searchLeaderboard" placeholder="" autofocus/>
+                    <div style="display: none;"  class="errorMessage" id="createSportError">Invalid ID</div>
+                    <button  onclick="searchLeaderboard()">Submit</button>
+                    <script>
+                    function searchLeaderboard(){
+                        cookiedata = document.cookie.split(";")[0].split("=")[1].split(":")
+                        $.post("/data/user-sport-data", {username: cookiedata[0], password: cookiedata[1], }, function (data, status) {
+                            dataJson = JSON.parse(data);
+                            if (dataJson.success){
+                                success(document.getElementById('sport'), document.getElementById('createSportError'))
+                                success(document.getElementById('description'), document.getElementById('createSportError'))
+                                success(document.getElementById('unit'), document.getElementById('createSportError'))
+                                window.location.reload(false);
+                            } else{
+                                document.getElementById('createSportError').innerHTML = dataJson.reason
+                                error(document.getElementById('sport'), document.getElementById('createSportError'))
+                                error(document.getElementById('description'), document.getElementById('createSportError'))
+                                error(document.getElementById('unit'), document.getElementById('createSportError'))
+                            }
+                        });
+                    }
+                    </script>
+                </div>
+                <div class="inputFlex" id="joinLeaderboard">
+                    <input class="inputPositioning" type="text" id="searchLeaderboard" placeholder="" autofocus/>
+                    <div style="display: none;"  class="errorMessage" id="createSportError">Invalid ID</div>
+                    <button  onclick="searchLeaderboard()">Submit</button>
+                    <script>
+                    function searchLeaderboard(){
+                        cookiedata = document.cookie.split(";")[0].split("=")[1].split(":")
+                        $.post("/data/user-sport-data", {username: cookiedata[0], password: cookiedata[1], }, function (data, status) {
+                            dataJson = JSON.parse(data);
+                            if (dataJson.success){
+                                success(document.getElementById('sport'), document.getElementById('createSportError'))
+                                success(document.getElementById('description'), document.getElementById('createSportError'))
+                                success(document.getElementById('unit'), document.getElementById('createSportError'))
+                                window.location.reload(false);
+                            } else{
+                                document.getElementById('createSportError').innerHTML = dataJson.reason
+                                error(document.getElementById('sport'), document.getElementById('createSportError'))
+                                error(document.getElementById('description'), document.getElementById('createSportError'))
+                                error(document.getElementById('unit'), document.getElementById('createSportError'))
+                            }
+                        });
+                    }
+                    </script>
+                </div>
+                <!--inputs-->
+            </div>
+            <!--signout script-->
+            <script>
+            function signout(){
+                window.location.pathname = '/';
+                document.cookie = "username:password=; expires=0; path=/";
+            }
+            </script>
+        </div>
+        <script src="validation.js"></script>
+        <!-- check if the user has logged in before then serve them their data, if not go to the index page-->
+        <script>
+        if (document.cookie != "" && document.cookie.split(";")[0].split("=")[1] != ""){
+            getAllCards()
+        } else {
+            window.location.pathname = '/'
+        }
+        </script>
 
-    </div>
-</div>
-
-</body>
-</html>
+    </body>
+    </html>

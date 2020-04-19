@@ -1,0 +1,9 @@
+:root {
+    /* first 3 similar last one different*/
+    --main-bg-color: #364f6b; /*actual background of the sit colour*/
+    --secondary-bg-color: #ff8559;/*header and cards*/
+    --tertiary-bg-color: #ffa959;/*active colour*/
+    --forthary-bg-color: #364f6b; /* graph line */
+    --forthary-faded-color:rgba(54, 79, 107, 0.3);
+    --text-color: rgba(255, 255, 255, 0.87);
+}

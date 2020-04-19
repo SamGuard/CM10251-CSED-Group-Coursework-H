@@ -1,58 +1,219 @@
+
 body,html {
     font-family: "Open Sans", sans-serif;
     height: 100%;
     margin:0;
-    background: #00a8e8;
+    background: var(--main-bg-color);
 }
 
 * {
     box-sizing: border-box;
 }
 
-ul {
+.topnav {
+    display: flex;
     list-style-type: none;
     margin: 0;
     padding: 0;
-    background-color: #333;
-    position: fixed;
-    top: 0;
+    background-color: var(--secondary-bg-color);
+    position: sticky;
     width: 100%;
-    box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.3);
 }
-
-li {
+.topnav .ui-state-active {
+    background-color: var(--tertiary-bg-color);
+}
+.topnav li {
     float: left;
 }
-
-li a {
+.topnav li a {
     display: block;
-    color: white;
+    color: var(--text-color);
     text-align: center;
     padding: 14px 16px;
     text-decoration: none;
 }
-
-li a:hover:not(.ui-state-active) {
-    background-color: #111;
+.topnav li a:hover {
+    background-color: var(--main-bg-color);
 }
 
-.ui-state-active {
-    background-color: #004da5;
+.errorMessage {
+    font-style: italic;
+    color:red;
+    font-size: 0.8em;
+}
+
+#placeUsername{
+    background-color: var(--tertiary-bg-color);
+}
+
+.topNav .ui-state-active {
+    background-color: var(--tertiary-bg-color);
 }
 
 .flexbox {
-    margin-top:50px;
     display: flex;
     flex-direction: row;
     flex-wrap : wrap;
+    align-content: center;
     width: 100%;
 }
 
-/* Add a card effect for articles */
+/* Add a card effect for different things */
 .card {
-    flex-grow: 1;
     margin: 1%;
     padding: 1%;
-    background-color: white;
-    box-shadow: 0px 1px 5px rgba(0, 0, 0, 0.3);
+    background-color: var(--secondary-bg-color);
+    box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.3);
+    flex-grow: 1;
+    color:var(--text-color);
+}
+
+.cardTabs {
+    display: flex;
+    list-style-type: none;
+    margin: 0;
+    margin-bottom: 10px;
+    padding: 0;
+    justify-content: space-between;
+    background-color: var(--secondary-bg-color);
+    width: 100%;
+}
+
+.cardTabs li {
+    flex-grow: 1;
+    border-bottom: 3px solid var(--text-color);
+    float: left;
+}
+.cardTabs li a {
+    display: block;
+    color: var(--text-color);
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+}
+.cardTabs .ui-state-active a {
+    color: var(--forthary-bg-color);
+}
+.cardTabs .ui-state-active {
+    border-bottom: 3px solid var(--forthary-bg-color);
+}
+.cardTabs a:hover {
+    color: var(--forthary-bg-color);
+}
+.cardTabs li:hover {
+    border-bottom-color: var(--forthary-bg-color);
+}
+
+.card button{
+    cursor: pointer;
+    background-color: rgba(0,0,0,0);
+    padding: 0.25% 1%;
+    font-weight: bold;
+    margin: 0.4%;
+    color: var(--text-color);
+    border: 2px solid var(--text-color);
+}
+.card button:hover{
+    transition-duration: 0.4s;
+    background-color: var(--text-color);
+    color: var(--secondary-bg-color);
+}
+.noselect{
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+    supported by Chrome and Opera */
+}
+.close {
+    cursor: pointer;
+    padding: 9px 12px;
+    background: var(--main-bg-color);
+    font-weight: bold;
+}
+.openRecords {
+    cursor: pointer;
+    padding: 9px 12px;
+    background: var(--tertiary-bg-color);
+    font-weight: bold;
+}
+#inputs {
+    flex-grow: 1;
+    width:100%;
+}
+
+.sportCard{
+    display: flex;
+    flex-direction: column;
+    flex-wrap : wrap;
+    justify-content: center;
+}
+.sportCard input {
+    width:100%;
+}
+
+.row {
+    display:flex;
+    align-items:center;
+}
+
+.card h2 {
+    margin: 0.5% 0%;
+}
+
+.card h4 {
+    margin: 3% 0%;
+}
+
+.card h5 {
+    margin: 0.2% 0%;
+}
+
+.inputFlex {
+    display: flex;
+    flex-direction: row;
+    flex-wrap : wrap;
+    justify-content: center;
+}
+
+.inputPositioning {
+    margin: 0.5%;
+    flex-grow: 1;
+}
+
+.axisColor line{
+    stroke: var(--text-color);
+}
+
+.axisColor path{
+    stroke: var(--text-color);
+}
+
+.axisColor text{
+    fill: var(--text-color);
+}
+
+table {
+    border: none;
+    border-collapse: collapse;
+    width: 100%;
+    background-color: var(--secondary-bg-color);
+}
+
+table td, table th {
+    border: 1px solid var(--text-color);
+    text-align: center;
+    padding: 8px;
+}
+
+table th {
+    color: var(--text-color);
+    background: var(--main-bg-color);
+}
+
+table tr:nth-child(even) {
+    background: var(--tertiary-bg-color);
 }

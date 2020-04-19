@@ -124,7 +124,7 @@ dist
 .env.test.local
 .env.production.local
 
-#IDEs
-
-/database/fitness-tracker.db
+# Database
+*.db
+*.db-journal
 
