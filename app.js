@@ -21,10 +21,6 @@ app.use("/",index);
 app.use("/login", login);
 app.use("/register", register);
 app.use("/data", data);
-app.use("/time" ,function(req, res, next){
-    res.send(`{"date": ${Date.now().toString()}}`);
-});
-app.use("/data" , index);
 
 
 //This deals with when a directory has not been found

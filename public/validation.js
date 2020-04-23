@@ -3,9 +3,11 @@ function checkUsername(usernameInputID, usernameErrorID) {
     var errorElement = document.getElementById(usernameErrorID);
     if (input.value.length < 25 && input.value.length != 0){
         success(input,errorElement)
+        return true;
     } else{
         document.getElementById("usernameError").display = "";
         error(input,errorElement)
+        return false;
     }
 };
 
@@ -14,8 +16,10 @@ function checkEmail(emailInputID, emailErrorID) {
     var errorElement = document.getElementById(emailErrorID);
     if (/^.+@.+\..+/.test(input.value)){
         success(input,errorElement)
+        return true;
     } else{
         error(input,errorElement)
+        return false;
     }
 };
 
@@ -25,9 +29,11 @@ function checkPassword(passwordInputID, passwordErrorID) {
     passwordsSame(input, document.getElementById("confirmPasswordInput"))
     if (/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(input.value) && input.value.length >= 8){
         success(input,errorElement)
+        return true;
     } else{
         error(document.getElementById("confirmPasswordInput"),errorElement)
         error(input,errorElement)
+        return false;
     }
 };
 
@@ -36,24 +42,15 @@ function passwordsSame(firstPasswordElement, confirmPasswordElement){
     var errorElement = document.getElementById("confirmPasswordError");
     if (firstPasswordElement.value != confirmPasswordElement.value || confirmPasswordElement.value == ""){
         error(confirmPasswordElement, errorElement);
+        return false;
     } else {
         success(confirmPasswordElement, errorElement)
+        return true;
     }
 }
 
-function canRegister(usernameInputID, emailInputID, passwordInputID, confirmPasswordInputID){
-    inputs = [
-        document.getElementById(usernameInputID),
-        document.getElementById(emailInputID),
-        document.getElementById(passwordInputID),
-        document.getElementById(confirmPasswordInputID)
-    ]
-    for (var i = 0; i < inputs.length; i++) {
-        if(inputs[i].style.color != "green"){
-            return false;
-        }
-    }
-    return true
+function canRegister(usernameInputID, usernameErrorID, emailInputID, emailErrorID, passwordInputID, passwordErrorID, confirmPasswordInputID, confirmPasswordErrorID){
+    return checkUsername(usernameInputID,usernameErrorID) && checkEmail(emailInputID,emailErrorID) && checkPassword(passwordInputID,passwordErrorID) && passwordsSame(confirmPasswordInputID,confirmPasswordErrorID)
 }
 
 function forceBeInt(element){

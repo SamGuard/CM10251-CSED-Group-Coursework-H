@@ -17,12 +17,22 @@ async function getAllCards(){
         dataJson = JSON.parse(data);
         dataArray=dataJson.data
         for (p=0;p<dataArray.length;p++){
-            cur = dataArray[p]
+            cur = dataArray[p];
             await addCard(cur.name, cur.description, cur.record_unit, cur.ID)
         }
     });
 }
 
+async function getAllLeaderboards(){
+    $.post("/data/getAllLeaderBoards", {username: cookiedata[0], password: cookiedata[1]}, async function (leaderdata, status) {
+        leaderboarDataJson = JSON.parse(leaderdata);
+        leaderboarDataArray=leaderboarDataJson.data
+        for (leaderboardP=0;leaderboardP<leaderboarDataArray.length;leaderboardP++){
+            cure = leaderboarDataArray[leaderboardP]
+            await addLeaderboardElement(cure)
+        }
+    });
+}
 function submit(id){
     let name = 'amount'+id
     value = document.getElementById(name).value
@@ -85,8 +95,7 @@ async function addCard(title, description, unit, id){
     '<input type="date" id="date'+id+'" name="date" value="'+new Date().toDateInputValue()+'">'+
     '<h5>Amount:</h5>'+
     '<input type="text" id="amount'+id+'" oninput="forceBeInt(amount'+id+')" name="amount">'+
-    '<h4></h4>'+
-    '<button onclick="submit('+id+')" id="amount'+id+'button">Submit</button>'+
+    '<button style="margin-top: 10px;" onclick="submit('+id+')" id="amount'+id+'button">Submit</button>'+
     '<div style="display: none;"  class="errorMessage" id="amount'+id+'error">Invalid ID</div>'+
     '</div>'+
     '</div>'+
@@ -246,11 +255,57 @@ function removeCard(id){
     curCard = document.getElementById("cards").innerHTML.split(currentCard)
     document.getElementById("cards").innerHTML = curCard[0] + curCard[2]
     for(tabi=0;tabi<tabs.length;tabi++){
-        console.log(tabs[tabi]);
         $(tabs[tabi]).tabs().tabs( "refresh" );
     }
 }
 
-function addLeaderboard(id){
+function addLeaderboardElement(databaseElement){
+    // add the card to html
+    document.getElementById("leaderboardsCards").innerHTML += '<!--'+databaseElement.ID+'-->'+
+    '<div id=\"'+databaseElement.ID+'\" class=\"sportCard card\">'+
+    '<div>'+
+    '<h2 style="float:left;clear:left;">'+databaseElement.name+' (ID:'+databaseElement.ID+')</h2>'+
+    '<span onclick=\"removeLeaderboard(\''+databaseElement.ID+'\')\" style=\"float:right;\" class=\"close noselect\">&times;</span>'+
+    '<h3 style="float:left;clear:left;margin:10px">'+databaseElement.activity.name+' ('+databaseElement.activity.description+')</h3>'+
+    '</div>'+
+    '<div id=leaderboard'+databaseElement.ID+'>'+
+    '</div>'+
+    '</div>'+
+    '<!--'+databaseElement.ID+'-->'
+    addstring=""
+    for (leaderboardResult = 0; leaderboardResult < databaseElement.records.length; leaderboardResult++){
+        addstring += '<tr>'+
+        '<td>'+databaseElement.records[leaderboardResult].username+'</td>'+
+        '<td>'+databaseElement.records[leaderboardResult].record+'</td>'+
+        '</tr>'
+    }
+    document.getElementById("leaderboard"+databaseElement.ID).innerHTML = '<table style="width:100%">'+
+    '<tr>'+
+    '<th>Username</th>'+
+    '<th>Value ('+databaseElement.activity.record_unit+')</th>'+
+    '</tr>'+
+    addstring+
+    '</table>';
+}
 
+function addUserToLeaderboard(name){
+    $.post("/data/joinLeaderBoard", {username: cookiedata[0], password: cookiedata[1], name:name}, function (data, status) {
+        dataJson = JSON.parse(data);
+        if (dataJson.success){
+            window.location.reload(false);
+        }
+    });
+}
+
+function createLeaderboard(id){
+    name = prompt("Please enter the leaderboard's name", "");
+    if (name != null) {
+        $.post("/data/addLeaderBoard", {username: cookiedata[0], password: cookiedata[1], sportID:id, name:name}, function (data, status) {
+            dataJson = JSON.parse(data);
+            if (dataJson.success){
+                window.location.reload(false);
+            }
+        });
+
+    }
 }

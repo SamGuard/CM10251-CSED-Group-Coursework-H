@@ -36,7 +36,6 @@
                         <input type="text" id="loginUsernameInput" placeholder="Username" autofocus/>
                         <input type="password" id="loginPasswordInput"  placeholder="Password" />
                         <div style="display: none;" class="errorMessage" id="loginError">Not valid username or password.</div>
-                        <a href="/forgotpassword">Forgot your password?</a>
                         <button onclick="signin()">Log in</button>
                     </form>
                 </div>
@@ -61,7 +60,7 @@
     <script src="validation.js"></script>
     <script>
     function signup(){
-        if (canRegister("usernameInput", "emailInput", "passwordInput", "confirmPasswordInput")){
+        if (canRegister("usernameInput","usernameError", "emailInput","emailError", "passwordInput","passwordError", "confirmPasswordInput","confirmPasswordError")){
             $.post("/register", {username: document.getElementById("usernameInput").value, email: document.getElementById("emailInput").value, password: document.getElementById("passwordInput").value}, function (data, status) {
                 dataJson = JSON.parse(data);
                 if (dataJson.userRegistered){

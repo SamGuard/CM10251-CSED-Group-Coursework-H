@@ -1,4 +1,4 @@
--- we don't know how to generate root <with-no-name> (class Root) :(
+-- we don't know how to generate schema main (class Schema) :(
 create table activities
 (
 	ID INTEGER not null

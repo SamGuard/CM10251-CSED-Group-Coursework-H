@@ -59,6 +59,27 @@ router.get("/user-activities", function(req, res, next) {
     res.send(JSON.stringify(output));
 });
 
+router.get("/getActivityByName", function(req, res, next) {
+    let username = req.query.username;
+    let password = req.query.password;
+    let sportName = req.query.sportName.toLowerCase();
+
+    let result = JSON.parse(login.checkUser(username,password));
+    if(result.loggedIn == 0){
+        res.send('{"success": 0, "reason": "Invalid login"}');
+        return;
+    }
+
+    if(!db.activityExists(sportName)){
+        res.send('{"success": 0, "reason": "Sport does not exist"}');
+        return;
+    }
+
+    res.send(`{"success": 1, "reason": "", "data": ${JSON.stringify(db.getActivity(sportName))}}`);
+    return;
+
+});
+
 //Receives post request for /data/user-sport-data, adds a new sport to the database and assigns the user to it
 router.post("/user-sport-data", function(req, res, next){
     let username = req.body.username;
@@ -80,7 +101,7 @@ router.post("/user-sport-data", function(req, res, next){
     }
 
     let activity = db.searchForActivitiesByName(sportName);
-    if(activity.length > 0 && activity[0].sportDesc == sportDesc){
+    if(activity.length > 0 && activity[0].name == sportName && activity[0].sportDesc == sportDesc){
         res.send('{"success": 0, "reason":"Sport already exists}');
     }
 
@@ -141,7 +162,7 @@ router.post("/add-record", function(req, res, next) {
 
     let user = db.getUser(username);
 
-    let record = new Record(user.ID,parseInt(sportID), parseInt(amount), parseInt(date));
+    let record = new Record(user.ID,parseInt(sportID), parseFloat(amount), parseInt(date));
     db.createRecord(record);
     res.send('{"success": 1, "reason": ""}');
 
@@ -181,36 +202,54 @@ router.post("/getAllLeaderBoards", function(req,res,next){
     let username = req.body.username;
     let password = req.body.password;
 
-    let result = JSON.parse(login.checkUser(username,password));
+    let result = JSON.parse(login.checkUser(username, password));
     if(result.loggedIn == 0){
         res.send('{"success": 0, "reason": "Invalid login"}');
         return;
     }
 
     let user = db.getUser(username);
-
+    console.log(user);
     let boards = db.getUserLeaderboards(user.ID);
+    console.log(boards);
     output = JSON.parse('{"success": 1, "reason": "", "data": []}');
 
     for(let i = 0; i < boards.length; i++){
+        output.data.push(JSON.parse('{"ID": 0, "name": "", "activity": "", "records": {}}'));
         output.data[i].ID = boards[i].ID;
-        output.data[i].name = db.getActivity(boards[i].activityID);
+        output.data[i].name = boards[i].name;
+        output.data[i].activity = boards[i].activity;
         let records = db.getAllLeaderboardRecords(boards[i].ID);
-        for(let j = 0; j < records.length; j++){
-            output.data[i].records = records;
+        let highest = 0;
+        let swap;
+        console.log(records);
+
+        for(var j = 0; j < records.length; j++){
+            for(var k = 0; k < records.length-j-1; k++){
+                if(records[k].record > records[k+1].record){
+                    swap = records[k];
+                    records[k] = records[k+1];
+                    records[k+1] = swap;
+                }
+            }
+        }
+        output.data[i].records = records;
+
+        for(var j = 0; j < output.data[i].records.length; j++){
+            output.data[i].records[j].username = db.getUser(output.data[i].records[j].userID).username;
         }
 
     }
 
     res.send(JSON.stringify(output));
-
 });
 
 
 router.post("/addLeaderBoard", function(req,res,next) {
     let username = req.body.username;
     let password = req.body.password;
-    let sportID = req.body.sportID;
+    let sportID = parseInt(req.body.sportID);
+    let name = req.body.name;
 
     let result = JSON.parse(login.checkUser(username, password));
     if (result.loggedIn == 0) {
@@ -219,7 +258,13 @@ router.post("/addLeaderBoard", function(req,res,next) {
     }
     let user = db.getUser(username);
 
-    db.createLeaderboard(sportID, user.userID);
+    if(!db.activityExists(sportID)){
+        res.send('{"success": 0, "reason": "Sport doesn\'t exist"}');
+        return;
+    }
+
+    db.createLeaderboard(sportID, name);
+    db.addUserToLeaderboard(user.ID, db.searchForLeaderboardByName(name)[0].ID);
     res.send('{"success": 1, "reason": ""}');
 
 });
@@ -227,7 +272,7 @@ router.post("/addLeaderBoard", function(req,res,next) {
 router.post("/joinLeaderBoard", function(req,res,next) {
     let username = req.body.username;
     let password = req.body.password;
-    let sportID = req.body.sportID;
+    let name = req.body.name;
 
     let result = JSON.parse(login.checkUser(username, password));
     if (result.loggedIn == 0) {
@@ -235,10 +280,35 @@ router.post("/joinLeaderBoard", function(req,res,next) {
         return;
     }
 
+    if(!db.leaderboardExists(name)){
+        res.send('{"success": 0, "reason": "Leaderboard does not exist"}');
+        return;
+    }
+
     let user = db.getUser(username);
-    db.addUserToLeaderboard(user.ID, sportID);
+    if(db.addUserToLeaderboard(user.ID, db.searchForLeaderboardByName(name)[0].ID) == 0){
+        res.send(`{"success": 0, "reason": "User already is on the leader board or is not part of the sport which this leader board is for"}`);
+        return;
+    }
+
+    res.send(`{"success": 1, "reason": ""}`);
+
+});
 
 
+router.post("/searchForLeaderboard", function(req, res, next) {
+    let username = req.body.username;
+    let password = req.body.password;
+    let boardName = req.body.boardName;
+
+    let result = JSON.parse(login.checkUser(username, password));
+    if (result.loggedIn == 0) {
+        res.send('{"success": 0, "reason": "Invalid login"}');
+        return;
+    }
+
+    let leaderboards = db.searchForLeaderboardByName(boardName);
+    res.send(`{"success": 1, "reason": "", "data":${JSON.stringify(leaderboards)}}`);
 });
 
 

@@ -177,7 +177,7 @@ class Database {
 	 */
 	static searchForActivitiesByName(name)
 	{
-		let query = "SELECT * FROM activities WHERE name LIKE '%?%;'";
+		let query = "SELECT * FROM activities WHERE name LIKE '%?%';";
 		let activities = [];
 
 		this.connect();
@@ -204,8 +204,6 @@ class Database {
 		this.connect();
 		let output = db.run(query, [userID], null);
 		this.close();
-
-		console.log(output);
 
 		for (let i = 0; i < output.length; i++) {
 			// | In case an activity is deleted
@@ -305,7 +303,7 @@ class Database {
 		let output = db.run(query, [activityIdentifier], null);
 		this.close();
 
-		return (output.length === 1);
+		return (output.length > 0);
 	}
 
 	// </ACTIVITY>
@@ -318,13 +316,32 @@ class Database {
 	 */
 	static createRecord(record)
 	{
+		let PB = this.getUserActivityPB(record.userID, record.activityID);
+
 		let query = "INSERT INTO activityRecords (user_ID, activity_ID, record, date) VALUES (?, ?, ?, ?)";
 
 		this.connect();
 		db.run(query, [record.userID, record.activityID, record.record, record.getDateMillis()], null);
 		this.close();
 
-		this.checkLeaderboardPB(record); // Check for new PB and update on leaderboards.
+		this.checkLeaderboardPB(PB); // Check for new PB and update on leaderboards.
+	}
+
+	/**
+	 * Returns an object for the record with the given ID
+	 *
+	 * @param recordID
+	 * @return {Record}
+	 */
+	static getRecord(recordID)
+	{
+		let query = "SELECT * FROM activityRecords WHERE ID = ?;";
+
+		this.connect();
+		let output = db.run(query, [recordID], null)[0];
+		this.close();
+
+		return new Record(output.user_ID, output.activity_ID, output.record, output.date, output.ID)
 	}
 
 	/**
@@ -338,7 +355,6 @@ class Database {
 	{
 		let records = [];
 		let query = "SELECT * FROM activityRecords WHERE user_ID = ? AND activity_ID = ? ORDER BY date;";
-		//let query = "SELECT * FROM activityRecords WHERE user_ID = ? AND activity_ID = ? AND record != -1 ORDER BY date ASC;";
 
 		this.connect();
 		let output = db.run(query, [userID, activityID], null);
@@ -373,16 +389,16 @@ class Database {
 			order = "DESC";
 		}
 
-		let query = "SELECT * FROM activityRecords WHERE user_ID = ? AND activity_ID = ? ORDER BY ?;";
+		let query = "SELECT * FROM activityRecords WHERE user_ID = ? AND activity_ID = ? AND record != -1 ORDER BY record " + order + ";";
 
 		this.connect();
-		let output = db.run(query, [userID, activityID, order], null);
+		let output = db.run(query, [userID, activityID], null);
 		this.close();
 
 		// | The first item in the collection will be the PB.
 		output = output[0];
 
-		return new Record(output.user_id, output.activity_id, output.record, output.date, output.ID);
+		return new Record(output.user_ID, output.activity_ID, output.record, output.date, output.ID);
 	}
 
 	/**
@@ -409,11 +425,36 @@ class Database {
 	 */
 	static removeRecord(recordID)
 	{
+		let deletedRecord = this.getRecord(recordID);
+
 		let query = "DELETE FROM activityRecords WHERE ID = ?;";
 
 		this.connect();
 		db.run(query, [recordID], null);
 		this.close();
+
+		if(this.recordUsedInAnyLeaderboard(recordID))
+		{
+			this.checkLeaderboardPB(deletedRecord);
+		}
+
+	}
+
+	/**
+	 * Returns a boolean indicating whether or not the given record is used in any leaderboards
+	 *
+	 * @param recordID
+	 * @return {boolean}
+	 */
+	static recordUsedInAnyLeaderboard(recordID)
+	{
+		let query = "SELECT * FROM leaderboard_entries WHERE record_ID = ?;";
+
+		this.connect();
+		let output = db.run(query, [recordID], null);
+		this.close();
+
+		return output.length > 0;
 	}
 
 	// </RECORD>
@@ -450,7 +491,7 @@ class Database {
 	 */
 	static getUserLeaderboards(userID)
 	{
-		let query = "SELECT leaderboard_ID FROM leaderboard_entries JOIN activityRecords aR on leaderboard_entries.record_ID = aR.ID WHERE user_ID = ? AND record = -1;";
+		let query = "SELECT leaderboard_ID FROM leaderboard_entries JOIN activityRecords aR on leaderboard_entries.record_ID = aR.ID WHERE user_ID = ?;";
 		let leaderboards = [];
 
 		this.connect();
@@ -472,6 +513,12 @@ class Database {
 	 */
 	static getLeaderboard(leaderboardIdentifier)
 	{
+		// If the leaderboard doesn't exist, return 0
+		if(!this.leaderboardExists(leaderboardIdentifier))
+		{
+			return 0;
+		}
+
 		let query;
 
 		if(typeof(leaderboardIdentifier) == "number")
@@ -482,7 +529,6 @@ class Database {
 		{
 			query = "SELECT * FROM leaderboards WHERE name = ?;";
 		}
-
 
 		this.connect();
 		let output = db.run(query, [leaderboardIdentifier], null);
@@ -514,7 +560,7 @@ class Database {
 		let output = db.run(query, [leaderboardIdentifier], null);
 		this.close();
 
-		return (output.length === 1);
+		return (output.length > 0);
 	}
 
 	/**
@@ -525,11 +571,13 @@ class Database {
 	 */
 	static searchForLeaderboardByName(name)
 	{
+		name = "%" + name + "%";
+
 		let leaderboards = [];
-		let query = "SELECT * FROM leaderboards WHERE name LIKE '%?%';";
+		let query = "SELECT * FROM leaderboards WHERE name LIKE $name";
 
 		this.connect();
-		let output = db.run(query, [name], null);
+		let output = db.run(query, {$name : name}, null);
 		this.close();
 
 		for(let i = 0; i < output.length; i++)
@@ -613,27 +661,15 @@ class Database {
 	}
 
 	/**
-	 * Verifies whether the new record is a new PB, and updates that PB for every leaderboard that the record is in.
+	 * Checks whether the given record is still a PB, updating it if not.
 	 *
-	 * @param newRecord
+	 * @param currentPB
 	 */
-	static checkLeaderboardPB(newRecord)
+	static checkLeaderboardPB(currentPB)
 	{
-		let currentRecord = this.getUserActivityPB(newRecord.userID, newRecord.activityID);
-		let activity = this.getActivity(newRecord.activityID);
+		let pbToTest = this.getUserActivityPB(currentPB.userID, currentPB.activityID);
 
-		let isPB;
-
-		// If this activity has ascending records, then smaller is better.
-		if(activity.ascending === 1)
-		{
-			isPB = newRecord.record < currentRecord.record;
-		}
-		// If descending, bigger is better.
-		else
-		{
-			isPB = newRecord.record > currentRecord.record;
-		}
+		let isPB = currentPB.ID !== pbToTest.ID;
 
 		// Update the record if it's a PB.
 		if(isPB)
@@ -641,7 +677,7 @@ class Database {
 			let query = "UPDATE leaderboard_entries SET record_ID = ? WHERE record_ID = ?;";
 
 			this.connect();
-			db.run(query, [newRecord.ID, currentRecord.ID], null);
+			db.run(query, [pbToTest.ID, currentPB.ID], null);
 			this.close();
 		}
 	}
@@ -653,14 +689,23 @@ class Database {
 	 */
 	static getAllLeaderboardRecords(leaderboardID)
 	{
-		// implement logic go get the records
+		let query = "SELECT * FROM activityRecords join leaderboard_entries le on activityRecords.ID = le.record_ID WHERE leaderboard_ID = ?;";
 
-		return [];
+		let records = [];
+
+		this.connect();
+		let output = db.run(query, [leaderboardID], null);
+		this.close();
+		for (let i = 0; i < output.length; i++)
+		{
+
+			records.push(new Record(output[i].user_ID, output[i].activity_ID, output[i].record, output[i].date, output[i].record_ID))
+		}
+
+		return records;
 	}
 
 	//</LEADERBOARD>
 }
-
-
 
 module.exports.Database = Database;

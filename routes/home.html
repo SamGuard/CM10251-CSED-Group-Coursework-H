@@ -29,7 +29,7 @@
         <ul class="topnav">
             <li><a href="#Home">Home</a></li>
             <li><a href="#Leaderboard">Leaderboard</a></li>
-            <li style="margin-left:auto;"><a id="placeUsername"></a><script>document.getElementById('placeUsername').innerHTML =  document.cookie.split(";")[0].split("=")[1].split(":")[0]</script></li>
+            <li style="margin-left:auto;"><a id="placeUsername" href="#Profile"></a><script>document.getElementById('placeUsername').innerHTML =  document.cookie.split(";")[0].split("=")[1].split(":")[0]</script></li>
             <li><a onclick="signout()">Sign out</a></li>
         </ul>
         <!-- home page-->
@@ -41,7 +41,7 @@
                 <div id="inputs" class="card">
                     <ul class="cardTabs">
                         <li><a href="#newSport">Input a new activity</a></li>
-                        <li><a href="#fromID">Get an activity from id</a></li>
+                        <li><a href="#searchForActivity">Search for an activity</a></li>
                     </ul>
                     <div id="newSport">
                         <div class="inputFlex">
@@ -50,9 +50,9 @@
                             <input class="inputPositioning" type="text" id="unit" placeholder="Unit (e.g. Seconds or s)*"/>
                             <div  class="inputPositioning">
                                 <input type="radio" id="ascending" name="ascdec" value="ascending" checked>
-                                <label for="ascending">Ascending</label><br>
+                                <label for="ascending">Higher value is better</label><br>
                                 <input type="radio" id="decending" name="ascdec" value="decending">
-                                <label for="decending">Decending</label><br>
+                                <label for="decending">Lower value is better</label><br>
                             </div>
                             <div style="display: none;"  class="errorMessage" id="createSportError">Invalid ID</div>
                             <button  onclick="createNewSport()">Submit</button>
@@ -79,18 +79,17 @@
                         </div>
                         <div class="errorMessage">Required fields marked by *</div>
                     </div>
-                    <div id="fromID" class="row">
-                        <input type="text" id="sportID" placeholder="Sport ID"/>
-                        <button  onclick="addUserToSport(document.getElementById('sportID').value)">Submit</button>
+                    <div id="searchForActivity" class="row">
+                        <input style="flex-grow:1;" type="text" id="sportID" placeholder="Sport name"/>
+                        <button style="margin-left: 2px;" onclick="searchActivity(document.getElementById('sportID').value)">Submit</button>
                         <div style="display: none;"  class="errorMessage" id="sportIDError">Invalid ID</div>
                         <script>
-                        function addUserToSport(id){
+                        function searchActivity(data){
                             cookiedata = document.cookie.split(";")[0].split("=")[1].split(":")
-                            $.post("/data/add-user-to-sport", {username: cookiedata[0], password: cookiedata[1], sportID:id}, function (data, status) {
+                            $.get("/data/getActivityByName", {username: cookiedata[0], password: cookiedata[1], sportName:data}, function (data, status) {
                                 dataJson = JSON.parse(data);
                                 if (dataJson.success){
                                     success(document.getElementById('sportID'), document.getElementById('sportIDError'))
-                                    window.location.reload(false);
                                 } else{
                                     document.getElementById('sportIDError').innerHTML = dataJson.reason
                                     error(document.getElementById('sportID'), document.getElementById('sportIDError'))
@@ -99,6 +98,9 @@
                         }
                         </script>
                     </div>
+                    <div id="activitySearchResults">
+
+                    </div>
                 </div>
                 <!--inputs-->
 
@@ -106,78 +108,76 @@
         </div>
         <!--leaderboard page-->
         <div id="Leaderboard">
-            <div id="inputsLeaderboard" class="card">
-                <ul class="cardTabs">
-                    <li><a href="#searchLeaderboard">Search for a leaderboard</a></li>
-                    <li><a href="#joinLeaderboard">Join a leaderboard</a></li>
-                </ul>
-                <div class="inputFlex" id="searchLeaderboard">
-                    <input class="inputPositioning" type="text" id="searchLeaderboard" placeholder="" autofocus/>
-                    <div style="display: none;"  class="errorMessage" id="createSportError">Invalid ID</div>
-                    <button  onclick="searchLeaderboard()">Submit</button>
-                    <script>
-                    function searchLeaderboard(){
-                        cookiedata = document.cookie.split(";")[0].split("=")[1].split(":")
-                        $.post("/data/user-sport-data", {username: cookiedata[0], password: cookiedata[1], }, function (data, status) {
-                            dataJson = JSON.parse(data);
-                            if (dataJson.success){
-                                success(document.getElementById('sport'), document.getElementById('createSportError'))
-                                success(document.getElementById('description'), document.getElementById('createSportError'))
-                                success(document.getElementById('unit'), document.getElementById('createSportError'))
-                                window.location.reload(false);
-                            } else{
-                                document.getElementById('createSportError').innerHTML = dataJson.reason
-                                error(document.getElementById('sport'), document.getElementById('createSportError'))
-                                error(document.getElementById('description'), document.getElementById('createSportError'))
-                                error(document.getElementById('unit'), document.getElementById('createSportError'))
-                            }
-                        });
-                    }
-                    </script>
+            <div id="leaderboardsCards" class="flexbox">
+                <div id="inputsLeaderboard" class="card">
+                    <ul style="pointer-events:none;" class="cardTabs">
+                        <li class="ui-state-active"><a>Search for a leaderboard</a></li>
+                    </ul>
+                    <div class="inputFlex" id="searchLeaderboard">
+                        <input class="inputPositioning" type="text" id="searchLeaderboardInput" placeholder="Search by name" autofocus/>
+                        <div style="display: none;"  class="errorMessage" id="createSportError">Invalid ID</div>
+                        <button  onclick="searchLeaderboard()">Submit</button>
+                        <script>
+                        function searchLeaderboard(){
+                            cookiedata = document.cookie.split(";")[0].split("=")[1].split(":")
+                            $.post("/data/searchForLeaderboard", {username: cookiedata[0], password: cookiedata[1], boardName:document.getElementById('searchLeaderboardInput').value}, function (data, status) {
+                                dataJson = JSON.parse(data);
+                                if (dataJson.success){
+                                    addstring=""
+                                    for (leaderboardResult = 0; leaderboardResult < dataJson.data.length; leaderboardResult++){
+                                        addstring += '<tr">'+
+                                        '<td>'+dataJson.data[leaderboardResult].name+'</td>'+
+                                        '<td><a onclick="addUserToLeaderboard(\''+dataJson.data[leaderboardResult].name+'\')" style="cursor: pointer;text-decoration: underline;">Join</a></td>'+
+                                        '</tr>'
+                                    }
+                                    document.getElementById("leaderboardSearchResults").innerHTML = '<table style="width:100%">'+
+                                    '<tr>'+
+                                    '<th>Leaderboard</th>'+
+                                    '<th>Join</th>'+
+                                    '</tr>'+
+                                    addstring+
+                                    '</table>';
+                                } else{
+                                    document.getElementById('createSportError').innerHTML = dataJson.reason
+                                    error(document.getElementById('createSportError'), document.getElementById('createSportError'))
+                                }
+                            });
+                        }
+                        </script>
+                    </div>
+                    <div id="leaderboardSearchResults">
+
+                    </div>
+                    <!--inputs-->
                 </div>
-                <div class="inputFlex" id="joinLeaderboard">
-                    <input class="inputPositioning" type="text" id="searchLeaderboard" placeholder="" autofocus/>
-                    <div style="display: none;"  class="errorMessage" id="createSportError">Invalid ID</div>
-                    <button  onclick="searchLeaderboard()">Submit</button>
-                    <script>
-                    function searchLeaderboard(){
-                        cookiedata = document.cookie.split(";")[0].split("=")[1].split(":")
-                        $.post("/data/user-sport-data", {username: cookiedata[0], password: cookiedata[1], }, function (data, status) {
-                            dataJson = JSON.parse(data);
-                            if (dataJson.success){
-                                success(document.getElementById('sport'), document.getElementById('createSportError'))
-                                success(document.getElementById('description'), document.getElementById('createSportError'))
-                                success(document.getElementById('unit'), document.getElementById('createSportError'))
-                                window.location.reload(false);
-                            } else{
-                                document.getElementById('createSportError').innerHTML = dataJson.reason
-                                error(document.getElementById('sport'), document.getElementById('createSportError'))
-                                error(document.getElementById('description'), document.getElementById('createSportError'))
-                                error(document.getElementById('unit'), document.getElementById('createSportError'))
-                            }
-                        });
-                    }
-                    </script>
-                </div>
-                <!--inputs-->
             </div>
-            <!--signout script-->
-            <script>
-            function signout(){
-                window.location.pathname = '/';
-                document.cookie = "username:password=; expires=0; path=/";
-            }
-            </script>
         </div>
-        <script src="validation.js"></script>
-        <!-- check if the user has logged in before then serve them their data, if not go to the index page-->
+        <div id="Profile">
+            <div class="inputFlex card">
+                <button style="border-color: red;color:red;" onclick="deleteAccount()">Delete Account</button>
+            </div>
+        </div>
+        <!--signout script-->
         <script>
-        if (document.cookie != "" && document.cookie.split(";")[0].split("=")[1] != ""){
-            getAllCards()
-        } else {
-            window.location.pathname = '/'
+        function signout(){
+            window.location.pathname = '/';
+            document.cookie = "username:password=; expires=0; path=/";
         }
         </script>
+    </div>
+    <script src="validation.js"></script>
+    <!-- check if the user has logged in before then serve them their data, if not go to the index page-->
+    <script>
+    async function getAllData(){
+        await getAllCards();
+        await getAllLeaderboards();
+    }
+    if (document.cookie != "" && document.cookie.split(";")[0].split("=")[1] != ""){
+        getAllData()
+    } else {
+        window.location.pathname = '/'
+    }
+    </script>
 
-    </body>
-    </html>
+</body>
+</html>
