@@ -30,21 +30,18 @@ router.post("/", function(req, res, next){
         res.send('{"userRegistered": 0, "reason": "Invalid characters in fields, please use only: A-z, 1-9 or *+-=?^_`{|}~@.[]0123456789"  }');
         return;
     }
+    if(password.length < 8 || password.length > 24){
+        res.send('{"userRegistered": 0, "reason": "Password must be between 8 and 24 characters"  }');
+        return;
+    }
 
     let salt = sha256(Date.now().toString());
     let user = new userClass.User(username, sha256(password + salt), salt, email, Date.now(),);
 
-    /*
-    if(db.createUser(user) == false){
-        res.send(JSON.stringify("{'userRegistered': 0}"));
-    }else{
-        res.send(JSON.stringify("{'userRegistered': 1}"));
-    }
 
-     */
 
     var result = db.createUser(user);
-    console.log(result);
+
     if(result == 1){
         res.send('{"userRegistered": 1, "reason":""}');
     }else {

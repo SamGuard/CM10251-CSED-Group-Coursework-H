@@ -1,2 +1,3 @@
-//This file is used on the server version of the program to redirect to https if on http connection, this wont work
-// on the local version as its not a https connection so left blank to stop pages throwing errors
+if (location.protocol !== 'https:') {
+    location.replace(`https:${location.href.substring(location.protocol.length)}`);
+}

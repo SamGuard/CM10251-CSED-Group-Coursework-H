@@ -183,7 +183,7 @@ class Database {
 		this.connect();
 		let output = db.run(query, [name], null);
 		this.close();
-
+		console.log(output);
 		for(let item = 0; item < output.length; item++)
 		{
 			activities.push(new Activity(output.name, output.description, output.record_unit, output.ascending, output.ID));

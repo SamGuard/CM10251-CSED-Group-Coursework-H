@@ -3,6 +3,7 @@ const login = require("./login");
 const db = require("./back/database/Database").Database;
 const Activity = require("./back/models/Activity").Activity;
 const Record = require("./back/models/Record").Record;
+const Auth = require("./back/Authenticate").Authenticate;
 
 let router = express.Router();
 
@@ -12,7 +13,7 @@ router.get("/user-sport-records", function(req, res, next){
     let password = req.query.password;
     let sportID = req.query.sportID;
 
-    let result = JSON.parse(login.checkUser(username,password));
+    let result = JSON.parse(Auth.checkUser(username,password));
     if(result.loggedIn == 0){
         res.send('{"success": 0, "reason": "Invalid login"}');
         return;
@@ -39,7 +40,7 @@ router.get("/user-activities", function(req, res, next) {
     let username = req.query.username;
     let password = req.query.password;
 
-    let result = JSON.parse(login.checkUser(username,password));
+    let result = JSON.parse(Auth.checkUser(username,password));
     if(result.loggedIn == 0){
         res.send('{"success": 0, "reason": "Invalid login"}');
         return;
@@ -64,7 +65,7 @@ router.get("/getActivityByName", function(req, res, next) {
     let password = req.query.password;
     let sportName = req.query.sportName.toLowerCase();
 
-    let result = JSON.parse(login.checkUser(username,password));
+    let result = JSON.parse(Auth.checkUser(username,password));
     if(result.loggedIn == 0){
         res.send('{"success": 0, "reason": "Invalid login"}');
         return;
@@ -89,13 +90,13 @@ router.post("/user-sport-data", function(req, res, next){
     let sportUnit = req.body.sportUnit;
     let sportAsc = req.body.sportAsc;
 
-    let result = JSON.parse(login.checkUser(username,password));
+    let result = JSON.parse(Auth.checkUser(username,password));
     if(result.loggedIn == 0){
         res.send('{"success": 0, "reason": "Invalid login"}');
         return;
     }
     //Where the query needs to go
-    if(login.charCheck(sportName) == false || login.charCheck(sportDesc) == false || login.charCheck(sportUnit) == false || login.charCheck(sportAsc) == false){
+    if(Auth.charCheck(sportName) == false || Auth.charCheck(sportDesc) == false || Auth.charCheck(sportUnit) == false || Auth.charCheck(sportAsc) == false){
         res.send('{"success": 0, "reason": "Invalid data entered"}');
         return;
     }
@@ -120,12 +121,12 @@ router.post("/add-user-to-sport", function(req, res, next) {
     let password = req.body.password;
     let sportID = parseInt(req.body.sportID);
 
-    let result = JSON.parse(login.checkUser(username,password));
+    let result = JSON.parse(Auth.checkUser(username,password));
     if(result.loggedIn == 0){
         res.send('{"success": 0, "reason": "Invalid login"}');
         return;
     }
-    if(login.charCheck(sportID) == false){
+    if(Auth.charCheck(sportID) == false){
         res.send('{"success": 0, "reason": "Invalid sport ID"}');
         return;
     }
@@ -150,12 +151,12 @@ router.post("/add-record", function(req, res, next) {
     let amount = req.body.record;
     let date = req.body.date;
 
-    let result = JSON.parse(login.checkUser(username,password));
+    let result = JSON.parse(Auth.checkUser(username,password));
     if(result.loggedIn == 0){
         res.send('{"success": 0, "reason": "Invalid login"}');
         return;
     }
-    if(login.charCheck(sportID) == false){
+    if(Auth.charCheck(sportID) == false){
         res.send('{"success": 0, "reason": "Invalid sport ID"}');
         return;
     }
@@ -171,13 +172,39 @@ router.post("/add-record", function(req, res, next) {
 
 });
 
+//Post request for /data/search-activity, searches for a record
+router.post("/search-activity", function(req, res, next) {
+    let username = req.body.username;
+    let password = req.body.password;
+    let sportName = req.body.sportName;
+
+    let result = JSON.parse(Auth.checkUser(username,password));
+    if(result.loggedIn == 0) {
+        res.send('{"success": 0, "reason": "Invalid login"}');
+        return;
+    }
+    if(Auth.charCheck(sportName) == false){
+        res.send('{"success": 0, "reason": "Invalid sport name"}');
+        return;
+    }
+
+    let activities = db.searchForActivitiesByName(sportName);
+    let output = {"success": 1, "reason": "", "data": activities};
+
+    res.send(JSON.stringify(output));
+
+
+    return;
+
+});
+
 //Removes record
 router.post("/remove-record", function(req, res, next) {
     let username = req.body.username;
     let password = req.body.password;
     let recordID = parseInt(req.body.recordID);
 
-    let result = JSON.parse(login.checkUser(username,password));
+    let result = JSON.parse(Auth.checkUser(username,password));
     if(result.loggedIn == 0){
         res.send('{"success": 0, "reason": "Invalid login"}');
         return;
@@ -188,7 +215,7 @@ router.post("/remove-record", function(req, res, next) {
     }
 
     let user = db.getUser(username);
-    console.log(recordID);
+
     db.removeRecord(recordID);
     res.send('{"success": 1, "reason": ""}');
 
@@ -202,16 +229,16 @@ router.post("/getAllLeaderBoards", function(req,res,next){
     let username = req.body.username;
     let password = req.body.password;
 
-    let result = JSON.parse(login.checkUser(username, password));
+    let result = JSON.parse(Auth.checkUser(username, password));
     if(result.loggedIn == 0){
         res.send('{"success": 0, "reason": "Invalid login"}');
         return;
     }
 
     let user = db.getUser(username);
-    console.log(user);
+
     let boards = db.getUserLeaderboards(user.ID);
-    console.log(boards);
+
     output = JSON.parse('{"success": 1, "reason": "", "data": []}');
 
     for(let i = 0; i < boards.length; i++){
@@ -251,7 +278,7 @@ router.post("/addLeaderBoard", function(req,res,next) {
     let sportID = parseInt(req.body.sportID);
     let name = req.body.name;
 
-    let result = JSON.parse(login.checkUser(username, password));
+    let result = JSON.parse(Auth.checkUser(username, password));
     if (result.loggedIn == 0) {
         res.send('{"success": 0, "reason": "Invalid login"}');
         return;
@@ -274,7 +301,7 @@ router.post("/joinLeaderBoard", function(req,res,next) {
     let password = req.body.password;
     let name = req.body.name;
 
-    let result = JSON.parse(login.checkUser(username, password));
+    let result = JSON.parse(Auth.checkUser(username, password));
     if (result.loggedIn == 0) {
         res.send('{"success": 0, "reason": "Invalid login"}');
         return;
@@ -301,7 +328,7 @@ router.post("/searchForLeaderboard", function(req, res, next) {
     let password = req.body.password;
     let boardName = req.body.boardName;
 
-    let result = JSON.parse(login.checkUser(username, password));
+    let result = JSON.parse(Auth.checkUser(username, password));
     if (result.loggedIn == 0) {
         res.send('{"success": 0, "reason": "Invalid login"}');
         return;
