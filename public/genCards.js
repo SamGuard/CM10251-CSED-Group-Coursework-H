@@ -89,7 +89,7 @@ async function addCard(title, description, unit, id){
     '</div>'+
     '<div style="min-width: 850px;" id="tabs'+id+'">'+
     '<ul class="cardTabs">'+
-    '<li><a href="#graphs'+id+'">Graphs</a></li>'+
+    '<li><a href="#graphs'+id+'">Graph</a></li>'+
     '<li><a href="#table'+id+'">Data</a></li>'+
     '<li><a href="#goals'+id+'">Goals</a></li>'+
     '</ul>'+
@@ -343,6 +343,8 @@ function createLeaderboard(id){
             dataJson = JSON.parse(data);
             if (dataJson.success){
                 window.location.reload(false);
+            } else {
+                 alert(dataJson.reason);
             }
         });
 

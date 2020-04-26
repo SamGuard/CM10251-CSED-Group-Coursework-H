@@ -712,6 +712,16 @@ class Database {
 	{
 		let pbToTest = this.getUserActivityPB(currentPB.userID, currentPB.activityID);
 
+		if(pbToTest == null){
+			let query = "DELETE FROM leaderboard_entries WHERE record_ID = ?";
+
+			this.connect();
+			db.run(query, [currentPB.ID], null);
+			this.close();
+
+			return;
+		}
+
 		let isPB = currentPB.ID !== pbToTest.ID;
 
 		// Update the record if it's a PB.
