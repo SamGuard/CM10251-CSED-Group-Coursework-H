@@ -84,6 +84,37 @@ class Database {
 	}
 
 	/**
+	 * Deletes the given user and all their data from the database.
+	 *
+	 * @param username
+	 */
+	static removeUser(username)
+	{
+		let user = this.getUser(username);
+
+		// First get rid of the user's presence in leaderboards
+		let query = "DELETE FROM leaderboard_entries WHERE record_ID IN (SELECT record_ID FROM activityRecords WHERE user_ID = ?);";
+
+		this.connect();
+		db.run(query, [user.ID], null);
+		this.close();
+
+		// Next delete all of the user's records
+		query = "DELETE FROM activityRecords WHERE user_ID = ?";
+
+		this.connect();
+		db.run(query, [user.ID], null);
+		this.close();
+
+		query = "DELETE FROM users WHERE ID = ?;";
+
+		// Finally delete the user.
+		this.connect();
+		db.run(query, [user.ID], null);
+		this.close();
+	}
+
+	/**
 	 * Returns a boolean indicating whether or not the given username corresponds to a user in the database.
 	 *
 	 * @param userIdentifier
@@ -177,16 +208,18 @@ class Database {
 	 */
 	static searchForActivitiesByName(name)
 	{
-		let query = "SELECT * FROM activities WHERE name LIKE '%?%';";
+		name = "%" + name + "%";
+
+		let query = "SELECT * FROM activities WHERE name LIKE $name;";
 		let activities = [];
 
 		this.connect();
-		let output = db.run(query, [name], null);
+		let output = db.run(query, {$name : name}, null);
 		this.close();
-		console.log(output);
+
 		for(let item = 0; item < output.length; item++)
 		{
-			activities.push(new Activity(output.name, output.description, output.record_unit, output.ascending, output.ID));
+			activities.push(new Activity(output[item].name, output[item].description, output[item].record_unit, output[item].ascending, output[item].ID));
 		}
 
 		return activities;
@@ -324,7 +357,11 @@ class Database {
 		db.run(query, [record.userID, record.activityID, record.record, record.getDateMillis()], null);
 		this.close();
 
-		this.checkLeaderboardPB(PB); // Check for new PB and update on leaderboards.
+		// Update the PB if it exists
+		if(PB != null)
+		{
+			this.checkLeaderboardPB(PB); // Check for new PB and update on leaderboards.
+		}
 	}
 
 	/**
@@ -394,6 +431,12 @@ class Database {
 		this.connect();
 		let output = db.run(query, [userID, activityID], null);
 		this.close();
+
+		// If nothing was returned from the query, return null
+		if(output.length === 0)
+		{
+			return null;
+		}
 
 		// | The first item in the collection will be the PB.
 		output = output[0];
@@ -651,7 +694,7 @@ class Database {
 	 */
 	static userHasLeaderboard(userID, leaderboardID)
 	{
-		let query = "SELECT * FROM leaderboard_entries JOIN activityRecords aR on leaderboard_entries.record_ID = aR.ID WHERE user_ID = ? AND leaderboard_ID = ? AND record = -1;";
+		let query = "SELECT * FROM leaderboard_entries JOIN activityRecords aR on leaderboard_entries.record_ID = aR.ID WHERE user_ID = ? AND leaderboard_ID = ?;";
 
 		this.connect();
 		let output = db.run(query, [userID, leaderboardID], null);

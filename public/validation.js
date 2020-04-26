@@ -26,7 +26,7 @@ function checkEmail(emailInputID, emailErrorID) {
 function checkPassword(passwordInputID, passwordErrorID) {
     var input = document.getElementById(passwordInputID);
     var errorElement = document.getElementById(passwordErrorID);
-    passwordsSame(input, document.getElementById("confirmPasswordInput"))
+    passwordsSame(passwordInputID, "confirmPasswordInput")
     if (/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]/.test(input.value) && input.value.length >= 8){
         success(input,errorElement)
         return true;
@@ -38,8 +38,10 @@ function checkPassword(passwordInputID, passwordErrorID) {
 };
 
 
-function passwordsSame(firstPasswordElement, confirmPasswordElement){
+function passwordsSame(firstPasswordElementID, confirmPasswordElementID){
     var errorElement = document.getElementById("confirmPasswordError");
+    var firstPasswordElement = document.getElementById(firstPasswordElementID);
+    var confirmPasswordElement = document.getElementById(confirmPasswordElementID);
     if (firstPasswordElement.value != confirmPasswordElement.value || confirmPasswordElement.value == ""){
         error(confirmPasswordElement, errorElement);
         return false;
@@ -49,12 +51,12 @@ function passwordsSame(firstPasswordElement, confirmPasswordElement){
     }
 }
 
-function canRegister(usernameInputID, usernameErrorID, emailInputID, emailErrorID, passwordInputID, passwordErrorID, confirmPasswordInputID, confirmPasswordErrorID){
-    return checkUsername(usernameInputID,usernameErrorID) && checkEmail(emailInputID,emailErrorID) && checkPassword(passwordInputID,passwordErrorID) && passwordsSame(confirmPasswordInputID,confirmPasswordErrorID)
+function canRegister(usernameInputID, usernameErrorID, emailInputID, emailErrorID, passwordInputID, passwordErrorID, confirmPasswordInputID){
+    return checkUsername(usernameInputID,usernameErrorID) && checkEmail(emailInputID,emailErrorID) && checkPassword(passwordInputID,passwordErrorID) && passwordsSame(passwordInputID,confirmPasswordInputID)
 }
 
 function forceBeInt(element){
-        element.value = element.value.match(/[0-9]+([\.,][0-9]*)?/g);
+    element.value = element.value.match(/[0-9]+([\.,][0-9]*)?/g);
 }
 
 function error(element, errorElement){

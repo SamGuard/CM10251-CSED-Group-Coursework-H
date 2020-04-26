@@ -29,7 +29,20 @@
         <ul class="topnav">
             <li><a href="#Home">Home</a></li>
             <li><a href="#Leaderboard">Leaderboard</a></li>
-            <li style="margin-left:auto;"><a id="placeUsername" href="#Profile"></a><script>document.getElementById('placeUsername').innerHTML =  document.cookie.split(";")[0].split("=")[1].split(":")[0]</script></li>
+            <li style="margin-left:auto;">
+                <a id="placeUsername" href="#Profile"></a>
+                <script>
+                $.post("/data/getUsername", {token: cookiedata}, async function (data, status) {
+                    dataJson = JSON.parse(data);
+                    if(dataJson.success){
+                        document.getElementById("placeUsername").innerHTML = dataJson.data.username
+                    } else {
+                        window.location.pathname = '/';
+                        document.cookie = "token=; expires=0; path=/";
+                    }
+                });
+                </script>
+            </li>
             <li><a onclick="signout()">Sign out</a></li>
         </ul>
         <!-- home page-->
@@ -59,8 +72,8 @@
                             <script>
                             function createNewSport(){
                                 document.getElementById('description').value = document.getElementById('description').value == "" ? " " : document.getElementById('description').value
-                                cookiedata = document.cookie.split(";")[0].split("=")[1].split(":")
-                                $.post("/data/user-sport-data", {username: cookiedata[0], password: cookiedata[1], sportName:document.getElementById('sport').value, sportDesc:document.getElementById('description').value, sportUnit:document.getElementById('unit').value, sportAsc:document.getElementById("ascending").checked}, function (data, status) {
+                                cookiedata = document.cookie.split(";")[0].split("=")[1]
+                                $.post("/data/user-sport-data", {token: cookiedata, sportName:document.getElementById('sport').value, sportDesc:document.getElementById('description').value, sportUnit:document.getElementById('unit').value, sportAsc:document.getElementById("ascending").checked}, function (data, status) {
                                     dataJson = JSON.parse(data);
                                     if (dataJson.success){
                                         success(document.getElementById('sport'), document.getElementById('createSportError'))
@@ -79,28 +92,46 @@
                         </div>
                         <div class="errorMessage">Required fields marked by *</div>
                     </div>
-                    <div id="searchForActivity" class="row">
-                        <input style="flex-grow:1;" type="text" id="sportID" placeholder="Sport name"/>
-                        <button style="margin-left: 2px;" onclick="searchActivity(document.getElementById('sportID').value)">Submit</button>
-                        <div style="display: none;"  class="errorMessage" id="sportIDError">Invalid ID</div>
-                        <script>
-                        function searchActivity(data){
-                            cookiedata = document.cookie.split(";")[0].split("=")[1].split(":")
-                            $.get("/data/getActivityByName", {username: cookiedata[0], password: cookiedata[1], sportName:data}, function (data, status) {
-                                dataJson = JSON.parse(data);
-                                if (dataJson.success){
-                                    success(document.getElementById('sportID'), document.getElementById('sportIDError'))
-                                } else{
-                                    document.getElementById('sportIDError').innerHTML = dataJson.reason
-                                    error(document.getElementById('sportID'), document.getElementById('sportIDError'))
-                                }
-                            });
-                        }
-                        </script>
-                    </div>
-                    <div id="activitySearchResults">
+                    <div id="searchForActivity">
+                        <div class="row">
+                            <input style="flex-grow:1;" type="text" id="sportSearchQuery" placeholder="Sport name"/>
+                            <button style="margin-left: 2px;" onclick="searchActivity(document.getElementById('sportSearchQuery').value)">Submit</button>
+                            <div style="display: none;"  class="errorMessage" id="sportSearchQueryError">Invalid ID</div>
+                            <script>
+                            function searchActivity(sportSearchQuery){
+                                cookiedata = document.cookie.split(";")[0].split("=")[1]
+                                $.post("/data/search-activity", {token: cookiedata, sportName:sportSearchQuery}, function (data, status) {
+                                    dataJson = JSON.parse(data);
+                                    if (dataJson.success){
+                                        addstring=""
+                                        for (sportSearchQueryResult = 0; sportSearchQueryResult < dataJson.data.length; sportSearchQueryResult++){
+                                            addstring += '<tr">'+
+                                            '<td>'+dataJson.data[sportSearchQueryResult].name+'</td>'+
+                                            '<td><a onclick="addUserToSport(\''+dataJson.data[sportSearchQueryResult].ID+'\')" style="cursor: pointer;text-decoration: underline;">Join</a></td>'+
+                                            '</tr>'
+                                        }
+                                        document.getElementById("activitySearchResults").innerHTML = '<table style="width:100%">'+
+                                        '<tr>'+
+                                        '<th>Leaderboard</th>'+
+                                        '<th>Join</th>'+
+                                        '</tr>'+
+                                        addstring+
+                                        '</table>';
+                                    } else{
+                                        document.getElementById('sportSearchQueryError').innerHTML = dataJson.reason
+                                        error(document.getElementById('sportSearchQuery'), document.getElementById('sportSearchQueryError'))
+                                    }
+                                });
+                            }
+                            </script>
+                        </div>
+
+                        <div id="activitySearchResults">
+
+                        </div>
 
                     </div>
+
                 </div>
                 <!--inputs-->
 
@@ -119,20 +150,23 @@
                         <button  onclick="searchLeaderboard()">Submit</button>
                         <script>
                         function searchLeaderboard(){
-                            cookiedata = document.cookie.split(";")[0].split("=")[1].split(":")
-                            $.post("/data/searchForLeaderboard", {username: cookiedata[0], password: cookiedata[1], boardName:document.getElementById('searchLeaderboardInput').value}, function (data, status) {
+                            cookiedata = document.cookie.split(";")[0].split("=")[1]
+                            $.post("/data/searchForLeaderboard", {token: cookiedata, boardName:document.getElementById('searchLeaderboardInput').value}, function (data, status) {
                                 dataJson = JSON.parse(data);
+                                console.log(dataJson);
                                 if (dataJson.success){
                                     addstring=""
                                     for (leaderboardResult = 0; leaderboardResult < dataJson.data.length; leaderboardResult++){
-                                        addstring += '<tr">'+
+                                        addstring += '<tr id=\"potentialLeaderboard'+dataJson.data[leaderboardResult].ID+'\">'+
                                         '<td>'+dataJson.data[leaderboardResult].name+'</td>'+
-                                        '<td><a onclick="addUserToLeaderboard(\''+dataJson.data[leaderboardResult].name+'\')" style="cursor: pointer;text-decoration: underline;">Join</a></td>'+
+                                        '<td>'+dataJson.data[leaderboardResult].activity.name+'</td>'+
+                                        '<td><a onclick="addUserToLeaderboard(\''+dataJson.data[leaderboardResult].name+'\',\''+dataJson.data[leaderboardResult].ID+'\')" style="cursor: pointer;text-decoration: underline;">Join</a></td>'+
                                         '</tr>'
                                     }
                                     document.getElementById("leaderboardSearchResults").innerHTML = '<table style="width:100%">'+
                                     '<tr>'+
                                     '<th>Leaderboard</th>'+
+                                    '<th>Sport</th>'+
                                     '<th>Join</th>'+
                                     '</tr>'+
                                     addstring+
@@ -161,7 +195,7 @@
         <script>
         function signout(){
             window.location.pathname = '/';
-            document.cookie = "username:password=; expires=0; path=/";
+            document.cookie = "token=; expires=0; path=/";
         }
         </script>
     </div>

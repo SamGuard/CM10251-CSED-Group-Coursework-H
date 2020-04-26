@@ -18,16 +18,11 @@ fs.readFile(process.cwd() + "/routes/home.html", "utf8", function(err, data){
 });
 
 router.get("/", function (req, res, next){//When a get request is made on this directory on this server this function is called
-
-    console.log("connection of index-home");
-
     res.send(loginPage);
 
 });
 
 router.get("/home", function (req, res, next){//When a get request is made on this directory on this server this function is called
-
-    console.log("connection of index-home");
 
     res.send(homePage);
 

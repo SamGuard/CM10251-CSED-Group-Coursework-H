@@ -10,34 +10,39 @@ Date.prototype.toHumanReadableDate = (function() {
     return dateSplit[2] + "/" + dateSplit[1] + "/" + dateSplit[0];
 });
 DayInMilis = 86400000
-cookiedata = document.cookie.split(";")[0].split("=")[1].split(":")
+cookiedata = document.cookie.split(";")[0].split("=")[1]
 tabs=["#inputs", "#inputsLeaderboard"]
 async function getAllCards(){
-    $.get("/data/user-activities", {username: cookiedata[0], password: cookiedata[1]}, async function (data, status) {
+    $.get("/data/user-activities", {token: cookiedata}, async function (data, status) {
         dataJson = JSON.parse(data);
-        dataArray=dataJson.data
-        for (p=0;p<dataArray.length;p++){
-            cur = dataArray[p];
-            await addCard(cur.name, cur.description, cur.record_unit, cur.ID)
-        }
+        if(dataJson.success){
+            dataArray=dataJson.data
+            for (p=0;p<dataArray.length;p++){
+                cur = dataArray[p];
+                await addCard(cur.name, cur.description, cur.record_unit, cur.ID)
+            }
+        } else {console.log(dataJson);}
     });
 }
 
 async function getAllLeaderboards(){
-    $.post("/data/getAllLeaderBoards", {username: cookiedata[0], password: cookiedata[1]}, async function (leaderdata, status) {
-        leaderboarDataJson = JSON.parse(leaderdata);
-        leaderboarDataArray=leaderboarDataJson.data
-        for (leaderboardP=0;leaderboardP<leaderboarDataArray.length;leaderboardP++){
-            cure = leaderboarDataArray[leaderboardP]
-            await addLeaderboardElement(cure)
-        }
+    $.post("/data/getAllLeaderBoards", {token: cookiedata}, async function (leaderdata, status) {
+        leaderboardDataJson = JSON.parse(leaderdata);
+        if(leaderboardDataJson.success){
+            leaderboardDataArray=leaderboardDataJson.data
+            for (leaderboardP=0;leaderboardP<leaderboardDataArray.length;leaderboardP++){
+                cure = leaderboardDataArray[leaderboardP]
+                await addLeaderboardElement(cure)
+            }
+        } else {console.log(leaderboardDataJson);}
     });
 }
 function submit(id){
     let name = 'amount'+id
     value = document.getElementById(name).value
-    if (value != ""){
-        $.post("/data/add-record", {username: cookiedata[0], password: cookiedata[1], sportID:id, record:value, date:(new Date(document.getElementById('date'+id).value).getTime()  - 1000*60*60)}, function (data, status) {
+    let date = (new Date(document.getElementById('date'+id).value).getTime()  - 1000*60*60);
+    if (value != "" && date <= new Date().getTime()){
+        $.post("/data/add-record", {token: cookiedata, sportID:id, record:value, date:date}, function (data, status) {
             dataJson = JSON.parse(data);
             if (dataJson.success){
                 success(document.getElementById(name), document.getElementById(name+'error'))
@@ -47,6 +52,9 @@ function submit(id){
                 error(document.getElementById(name), document.getElementById(name+'error'))
             }
         });
+    }else{
+        document.getElementById('amount'+id+'error').innerHTML = date <= new Date().getTime() ? "Invalid Date(No future date)" : "Please enter some data"
+        error(document.getElementById(name), document.getElementById(name+'error'))
     }
 }
 
@@ -56,7 +64,7 @@ async function getUserDataFromSport(id){
         async: false,
         type: 'GET',
         url: "/data/user-sport-records",
-        data: {username: cookiedata[0], password: cookiedata[1], sportID:id},
+        data: {token: cookiedata, sportID:id},
         success: function (data, status) {
             dataJson = JSON.parse(data);
             for (i=0;i<dataJson.data.length;i++){
@@ -96,7 +104,7 @@ async function addCard(title, description, unit, id){
     '<h5>Amount:</h5>'+
     '<input type="text" id="amount'+id+'" oninput="forceBeInt(amount'+id+')" name="amount">'+
     '<button style="margin-top: 10px;" onclick="submit('+id+')" id="amount'+id+'button">Submit</button>'+
-    '<div style="display: none;"  class="errorMessage" id="amount'+id+'error">Invalid ID</div>'+
+    '<div style="display: none;"  class="errorMessage" id="amount'+id+'error"></div>'+
     '</div>'+
     '</div>'+
     '</div>'+
@@ -217,7 +225,7 @@ function openRecords(id){
 }
 
 function removeRecord(id){
-    $.post("/data/remove-record", {username: cookiedata[0], password: cookiedata[1], recordID:id}, function (data, status) {
+    $.post("/data/remove-record", {token: cookiedata, recordID:id}, function (data, status) {
         document.getElementById(id).style.display = "none";
         window.location.reload(false);
     });
@@ -251,12 +259,31 @@ function getGoals(data){
 }
 
 function removeCard(id){
-    currentCard='<!--'+id+'-->'
-    curCard = document.getElementById("cards").innerHTML.split(currentCard)
-    document.getElementById("cards").innerHTML = curCard[0] + curCard[2]
-    for(tabi=0;tabi<tabs.length;tabi++){
-        $(tabs[tabi]).tabs().tabs( "refresh" );
-    }
+    $.post("/data/removeFromSport", {token: cookiedata, sportID:id}, function (data, status) {
+        dataJson = JSON.parse(data);
+        if (dataJson.success){
+            currentCard='<!--'+id+'-->'
+            curCard = document.getElementById("cards").innerHTML.split(currentCard)
+            document.getElementById("cards").innerHTML = curCard[0] + curCard[2]
+            for(tabi=0;tabi<tabs.length;tabi++){
+                $(tabs[tabi]).tabs().tabs( "refresh" );
+            }
+        } else {
+            console.log(dataJson);
+        }
+    });
+}
+
+function removeLeaderboard(name){
+    $.post("/data/removeUserFromLeaderboard", {token: cookiedata, boardName:name}, function (data, status) {
+        dataJson = JSON.parse(data);
+        if (dataJson.success){
+            window.location.reload(false);
+        } else {
+            console.log(dataJson);
+        }
+    });
+
 }
 
 function addLeaderboardElement(databaseElement){
@@ -265,7 +292,7 @@ function addLeaderboardElement(databaseElement){
     '<div id=\"'+databaseElement.ID+'\" class=\"sportCard card\">'+
     '<div>'+
     '<h2 style="float:left;clear:left;">'+databaseElement.name+' (ID:'+databaseElement.ID+')</h2>'+
-    '<span onclick=\"removeLeaderboard(\''+databaseElement.ID+'\')\" style=\"float:right;\" class=\"close noselect\">&times;</span>'+
+    '<span onclick=\"removeLeaderboard(\''+databaseElement.name+'\')\" style=\"float:right;\" class=\"close noselect\">&times;</span>'+
     '<h3 style="float:left;clear:left;margin:10px">'+databaseElement.activity.name+' ('+databaseElement.activity.description+')</h3>'+
     '</div>'+
     '<div id=leaderboard'+databaseElement.ID+'>'+
@@ -288,19 +315,31 @@ function addLeaderboardElement(databaseElement){
     '</table>';
 }
 
-function addUserToLeaderboard(name){
-    $.post("/data/joinLeaderBoard", {username: cookiedata[0], password: cookiedata[1], name:name}, function (data, status) {
+function addUserToLeaderboard(name,id){
+    $.post("/data/joinLeaderBoard", {token: cookiedata, name:name}, function (data, status) {
+        dataJson = JSON.parse(data);
+        if (dataJson.success){
+            window.location.reload(false);
+        } else {
+            document.getElementById('potentialLeaderboard'+id).style.color = "red";
+            newE = document.getElementById('potentialLeaderboard'+id).innerHTML.replace("Join",dataJson.reason).replace("onclick=\"addUserToLeaderboard('1')\"","");
+            document.getElementById('potentialLeaderboard'+id).innerHTML = newE;
+        }
+    });
+}
+
+function addUserToSport(id){
+    $.post("/data/add-user-to-sport", {token: cookiedata, sportID:id}, function (data, status) {
         dataJson = JSON.parse(data);
         if (dataJson.success){
             window.location.reload(false);
         }
     });
 }
-
 function createLeaderboard(id){
     name = prompt("Please enter the leaderboard's name", "");
-    if (name != null) {
-        $.post("/data/addLeaderBoard", {username: cookiedata[0], password: cookiedata[1], sportID:id, name:name}, function (data, status) {
+    if (name != "null" & name != "") {
+        $.post("/data/addLeaderBoard", {token: cookiedata, sportID:id, name:name}, function (data, status) {
             dataJson = JSON.parse(data);
             if (dataJson.success){
                 window.location.reload(false);
@@ -308,4 +347,15 @@ function createLeaderboard(id){
         });
 
     }
+}
+
+function deleteAccount() {
+    $.post("/data/removeUser", {token: cookiedata}, function (data, status) {
+        dataJson = JSON.parse(data);
+        if (dataJson.success){
+            window.location.pathname = '/';
+            document.cookie = "token=; expires=0; path=/";
+            window.location.reload(false);
+        }
+    });
 }

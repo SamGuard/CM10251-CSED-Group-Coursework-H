@@ -48,7 +48,7 @@
                         <div style="display: none;"  class="errorMessage" id="emailError">Email must be a valid email.</div>
                         <input type="password" oninput='checkPassword("passwordInput", "passwordError")' id="passwordInput" placeholder="Password"/>
                         <div style="display: none;"  class="errorMessage" id="passwordError">Password must have atleast: 8 characters, 1 special character, 1 uppercase letter and 1 lower case letter</div>
-                        <input type="password" oninput='passwordsSame(document.getElementById("passwordInput"), document.getElementById("confirmPasswordInput"))' id="confirmPasswordInput" placeholder="Confirm Password"/>
+                        <input type="password" oninput='passwordsSame("passwordInput", "confirmPasswordInput")' id="confirmPasswordInput" placeholder="Confirm Password"/>
                         <div style="display: none;"  class="errorMessage" id="confirmPasswordError">Passwords must match and be valid.</div>
                         <div style="display: none;"  class="errorMessage" id="registerError"></div>
                         <button onclick="signup()">Register</button>
@@ -60,11 +60,11 @@
     <script src="validation.js"></script>
     <script>
     function signup(){
-        if (canRegister("usernameInput","usernameError", "emailInput","emailError", "passwordInput","passwordError", "confirmPasswordInput","confirmPasswordError")){
+        if (canRegister("usernameInput","usernameError", "emailInput","emailError", "passwordInput","passwordError", "confirmPasswordInput")){
             $.post("/register", {username: document.getElementById("usernameInput").value, email: document.getElementById("emailInput").value, password: document.getElementById("passwordInput").value}, function (data, status) {
                 dataJson = JSON.parse(data);
                 if (dataJson.userRegistered){
-                    document.cookie = "username:password="+document.getElementById("usernameInput").value+":"+document.getElementById("passwordInput").value+"; expires=0; path=/";
+                    document.cookie = "token="+dataJson.token+"; expires=0; path=/";
                     window.location.pathname = '/home'
                 } else {
                     console.log("not registered")
@@ -81,7 +81,7 @@
         $.post("/login", {username: document.getElementById("loginUsernameInput").value, password: document.getElementById("loginPasswordInput").value}, function (data, status) {
             dataJson = JSON.parse(data);
             if (dataJson.loggedIn){
-                document.cookie = "username:password="+document.getElementById("loginUsernameInput").value+":"+document.getElementById("loginPasswordInput").value+"; expires=0; path=/";
+                document.cookie = "token="+dataJson.token+"; expires=0; path=/";
                 window.location.pathname = '/home'
             } else {
                 console.log("not logged in")

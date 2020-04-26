@@ -123,9 +123,8 @@ dist
 .env.development.local
 .env.test.local
 .env.production.local
-https.js
 
 # Database
-
-
+*.db
+*.db-journal
 

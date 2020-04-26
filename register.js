@@ -21,7 +21,6 @@ function charCheck(string){
 
 
 router.post("/", function(req, res, next){
-    console.log("registering user");
     let username = req.body.username;
     let password = req.body.password;
     let email = req.body.email;
