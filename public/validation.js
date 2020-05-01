@@ -51,8 +51,14 @@ function passwordsSame(firstPasswordElementID, confirmPasswordElementID){
     }
 }
 
-function canRegister(usernameInputID, usernameErrorID, emailInputID, emailErrorID, passwordInputID, passwordErrorID, confirmPasswordInputID){
-    return checkUsername(usernameInputID,usernameErrorID) && checkEmail(emailInputID,emailErrorID) && checkPassword(passwordInputID,passwordErrorID) && passwordsSame(passwordInputID,confirmPasswordInputID)
+function canRegister(usernameInputID, usernameErrorID, emailInputID, emailErrorID, passwordInputID, passwordErrorID, confirmPasswordInputID, consentID, consentError){
+    var consentElement = document.getElementById(consentID);
+    var consentError = document.getElementById(consentError);
+    if(consentElement.value){
+        return checkUsername(usernameInputID,usernameErrorID) && checkEmail(emailInputID,emailErrorID) && checkPassword(passwordInputID,passwordErrorID) && passwordsSame(passwordInputID,confirmPasswordInputID)
+    } else {
+        error(consentElement, consentError)
+    }
 }
 
 function forceBeInt(element){

@@ -107,12 +107,14 @@
                                         for (sportSearchQueryResult = 0; sportSearchQueryResult < dataJson.data.length; sportSearchQueryResult++){
                                             addstring += '<tr">'+
                                             '<td>'+dataJson.data[sportSearchQueryResult].name+'</td>'+
+                                            '<td>'+dataJson.data[sportSearchQueryResult].description+'</td>'+
                                             '<td><a onclick="addUserToSport(\''+dataJson.data[sportSearchQueryResult].ID+'\')" style="cursor: pointer;text-decoration: underline;">Join</a></td>'+
                                             '</tr>'
                                         }
                                         document.getElementById("activitySearchResults").innerHTML = '<table style="width:100%">'+
                                         '<tr>'+
-                                        '<th>Leaderboard</th>'+
+                                        '<th>Sport name</th>'+
+                                        '<th>Sport description</th>'+
                                         '<th>Join</th>'+
                                         '</tr>'+
                                         addstring+

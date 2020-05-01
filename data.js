@@ -35,9 +35,13 @@ router.get("/user-sport-records", function(req, res, next){
         res.send('{"success": 0, "reason": "Invalid login"}');
         return;
     }
-
     let username = result.username;
     let user = db.getUser(username);
+
+    if(Auth.checkStrings([sportID]) === false){
+        res.json({"success": 0, "reason": "Invalid characters in parameters"});
+        return;
+    }
 
     let records = db.getUserActivityRecordHistory(user.ID,sportID);
     let index = 0;
@@ -91,6 +95,11 @@ router.get("/getActivityByName", function(req, res, next) {
         return;
     }
 
+    if(Auth.checkStrings([sportName]) === false){
+        res.json({"success": 0, "reason": "Invalid characters in parameters"});
+        return;
+    }
+
     if(!db.activityExists(sportName)){
         res.send('{"success": 0, "reason": "Sport does not exist"}');
         return;
@@ -115,6 +124,11 @@ router.post("/user-sport-data", function(req, res, next){
         return;
     }
     let username = result.username;
+
+    if(Auth.checkStrings([sportName, sportDesc, sportUnit, sportAsc]) === false){
+        res.json({"success": 0, "reason": "Invalid characters in parameters"});
+        return;
+    }
 
     //Where the query needs to go
     if(Auth.charCheck(sportName) == false || Auth.charCheck(sportDesc) == false || Auth.charCheck(sportUnit) == false || Auth.charCheck(sportAsc) == false){
@@ -149,12 +163,12 @@ router.post("/removeFromSport", function(req, res, next){
     }
     let username = result.username;
 
-    if(Auth.charCheck(sportID) == false){
+    if(Auth.charCheck(sportID) === false){
         res.send('{"success": 0, "reason": "Invalid sport ID"}');
         return;
     }
 
-    if(db.activityExists(sportID) == true){
+    if(db.activityExists(sportID) === true){
         db.removeUserFromActivity(db.getUser(username).ID, sportID);
         res.send(JSON.stringify({"success": 1, "reason": ""}));
     }else{
@@ -176,20 +190,12 @@ router.post("/add-user-to-sport", function(req, res, next) {
     }
     let username = result.username;
 
-    if(Auth.charCheck(sportID) == false){
-        res.send('{"success": 0, "reason": "Invalid sport ID"}');
-        return;
-    }
-
-    if(db.activityExists(sportID) == true){
+    if(db.activityExists(sportID) === true){
         db.giveUserActivity(db.getUser(username).ID, sportID);
         res.send('{"success": 1, "reason": ""}');
     }else{
         res.send('{"success": 0, "reason": "Sport does not exist"}');
     }
-
-
-    return;
 
 });
 
@@ -209,7 +215,7 @@ router.post("/add-record", function(req, res, next) {
     }
     let username = result.username;
 
-    if(Auth.charCheck(sportID) == false){
+    if(Auth.charCheck(sportID) === false){
         res.send('{"success": 0, "reason": "Invalid sport ID"}');
         return;
     }
@@ -219,9 +225,6 @@ router.post("/add-record", function(req, res, next) {
     let record = new Record(user.ID,parseInt(sportID), parseFloat(amount), parseInt(date));
     db.createRecord(record);
     res.send('{"success": 1, "reason": ""}');
-
-
-    return;
 
 });
 
@@ -238,7 +241,7 @@ router.post("/search-activity", function(req, res, next) {
     let username = result.username;
 
 
-    if(Auth.charCheck(sportName) == false){
+    if(Auth.charCheck(sportName) === false){
         res.send('{"success": 0, "reason": "Invalid sport name"}');
         return;
     }
@@ -267,7 +270,7 @@ router.post("/remove-record", function(req, res, next) {
     }
     let username = result.username;
 
-    if(!recordID){
+    if(charCheck(recordID) === false){
         res.send('{"success": 0, "reason": "Invalid sport recordID"}');
         return;
     }
@@ -276,10 +279,6 @@ router.post("/remove-record", function(req, res, next) {
 
     db.removeRecord(recordID);
     res.send('{"success": 1, "reason": ""}');
-
-
-    return;
-
 });
 
 //Gets all the leaderboards for a given user
@@ -345,6 +344,11 @@ router.post("/addLeaderBoard", function(req,res,next) {
     let username = result.username;
     let user = db.getUser(username);
 
+    if(Auth.charCheck(name) === false){
+        res.json({"success": 0, "reason": "Invalid characters in parameters"});
+        return;
+    }
+
     if(!db.activityExists(sportID)){
         res.send('{"success": 0, "reason": "Sport doesn\'t exist"}');
         return;
@@ -356,7 +360,7 @@ router.post("/addLeaderBoard", function(req,res,next) {
         res.send('{"success": 0, "reason": "User has no data for this sport"}');
         return;
     }
-    if(db.leaderboardExists(name) == true){
+    if(db.leaderboardExists(name) === true){
         res.send('{"success": 0, "reason": "Leaderboard with this name already exists"}');
     }
 
@@ -383,6 +387,11 @@ router.post("/joinLeaderBoard", function(req,res,next) {
     }
     let username = result.username;
 
+    if(Auth.charCheck(name) === false) {
+        res.json({"success": 0, "reason": "Invalid characters in parameters"});
+        return;
+    }
+
     if(!db.leaderboardExists(name)){
         res.send('{"success": 0, "reason": "Leaderboard does not exist"}');
         return;
@@ -402,14 +411,14 @@ router.post("/joinLeaderBoard", function(req,res,next) {
     let userBoards = db.getUserLeaderboards(user.ID);
 
     for(let i = 0; i < userBoards.length; i++){
-        if(name.localeCompare(userBoards[i].name) == 0){
+        if(name.localeCompare(userBoards[i].name) === 0){
             res.send(JSON.stringify({"success": 0, "reason": "User is already part of this leader board"}));
             return;
         }
     }
 
 
-    if(db.addUserToLeaderboard(user.ID, board.ID) == 0){
+    if(db.addUserToLeaderboard(user.ID, board.ID) === 0){
         res.send(`{"success": 0, "reason": "User already is on the leader board or is not part of the sport which this leader board is for"}`);
         return;
     }
@@ -431,12 +440,17 @@ router.post("/removeUserFromLeaderboard", function(req, res, next){
     }
     let username = result.username;
 
-    if(db.leaderboardExists(boardName) == false){
+    if(Auth.checkStrings([boardName]) === false){
+        res.json({"success": 0, "reason": "Invalid characters in parameters"});
+        return;
+    }
+
+    if(db.leaderboardExists(boardName) === false){
         res.send(JSON.stringify({"success": 0, "reason": "Leaderboard does not exist"}));
         return;
     }
 
-    if(db.removeUserFromLeaderboard(db.getUser(username).ID, db.getLeaderboard(boardName).ID) == 0){
+    if(db.removeUserFromLeaderboard(db.getUser(username).ID, db.getLeaderboard(boardName).ID) === 0){
         res.send(JSON.stringify({"success": 0, "reason": "User is not part of leaderboard"}));
     }else {
         res.send(JSON.stringify({"success": 1, "reason": ""}));
@@ -456,7 +470,13 @@ router.post("/searchForLeaderboard", function(req, res, next) {
         res.send('{"success": 0, "reason": "Invalid login"}');
         return;
     }
+
     let username = result.username;
+
+    if(Auth.checkStrings([boardName]) === false){
+        res.json({"success": 0, "reason": "Invalid characters in parameters"});
+        return;
+    }
 
     let leaderboards = db.searchForLeaderboardByName(boardName);
     res.send(`{"success": 1, "reason": "", "data":${JSON.stringify(leaderboards)}}`);

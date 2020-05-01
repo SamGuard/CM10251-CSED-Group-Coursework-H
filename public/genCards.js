@@ -130,9 +130,9 @@ async function addCard(title, description, unit, id){
     }
     goals = getGoals(graphData);
     document.getElementById('goals'+id).innerHTML = "<div>"+
-    "<h3>Goal for 1 day: "+Math.round(goals.oneday)+" "+unit+"</h3>"+
-    "<h3>Goal for 1 week: "+Math.round(goals.oneweek)+" "+unit+"</h3>"+
-    "<h3>Goal for 1 month: "+Math.round(goals.onemonth)+" "+unit+"</h3>"+
+    "<h3>Goal for 1 day: "+Math.round(goals.oneday*100)/100+" "+unit+"</h3>"+
+    "<h3>Goal for 1 week: "+Math.round(goals.oneweek*100)/100+" "+unit+"</h3>"+
+    "<h3>Goal for 1 month: "+Math.round(goals.onemonth*100)/100+" "+unit+"</h3>"+
     "</div>"
 
     //add the graph to the card

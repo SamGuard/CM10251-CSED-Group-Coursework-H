@@ -50,6 +50,11 @@
                         <div style="display: none;"  class="errorMessage" id="passwordError">Password must have atleast: 8 characters, 1 special character, 1 uppercase letter and 1 lower case letter</div>
                         <input type="password" oninput='passwordsSame("passwordInput", "confirmPasswordInput")' id="confirmPasswordInput" placeholder="Confirm Password"/>
                         <div style="display: none;"  class="errorMessage" id="confirmPasswordError">Passwords must match and be valid.</div>
+                        <div style="display:flex;align-items:center;margin-top:10px;">
+                            <input style="width:auto; margin:0px 10px 0px 10px;" type="checkbox" id="consent">
+                            <label style="color:var(--text-color)" for="consent">Do you consent to storing data.</label><br>
+                        </div>
+                        <div style="display: none;"  class="errorMessage" id="consentError">Please consent</div>
                         <div style="display: none;"  class="errorMessage" id="registerError"></div>
                         <button onclick="signup()">Register</button>
                     </form>
@@ -60,7 +65,7 @@
     <script src="validation.js"></script>
     <script>
     function signup(){
-        if (canRegister("usernameInput","usernameError", "emailInput","emailError", "passwordInput","passwordError", "confirmPasswordInput")){
+        if (canRegister("usernameInput","usernameError", "emailInput","emailError", "passwordInput","passwordError", "confirmPasswordInput", "consent", "consentError")){
             $.post("/register", {username: document.getElementById("usernameInput").value, email: document.getElementById("emailInput").value, password: document.getElementById("passwordInput").value}, function (data, status) {
                 dataJson = JSON.parse(data);
                 if (dataJson.userRegistered){
