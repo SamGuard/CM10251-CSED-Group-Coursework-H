@@ -751,7 +751,6 @@ class Database {
 		this.close();
 		for (let i = 0; i < output.length; i++)
 		{
-
 			records.push(new Record(output[i].user_ID, output[i].activity_ID, output[i].record, output[i].date, output[i].record_ID))
 		}
 

@@ -39,6 +39,15 @@ function charCheck(string){
 	return true;
 }
 
+function checkStrings(strings){
+	for(let i = 0; i < strings.length; i++){
+		if(charCheck(strings[i]) === false){
+			return false;
+		}
+	}
+	return true;
+}
+
 //Checks the username and password, return -1, 0 or 1. 1 means success 0 means incorrect characters and -1 means details are incorrect
 function checkUser(username, password){
 	if(charCheck(username) === false || charCheck(password) === false){
@@ -55,6 +64,10 @@ function checkUser(username, password){
 function checkToken(token){
 	while(tokens.length > 0 && Date.now() - tokens[0].expire > timeToLive) {
 		tokens.shift()
+	}
+
+	if(!token){
+		return null;
 	}
 
 	for(var i = 0; i < tokens.length; i++){
@@ -87,3 +100,4 @@ module.exports.checkUser = checkUser;
 module.exports.getToken = getToken;
 module.exports.charCheck = charCheck;
 module.exports.checkToken = checkToken;
+module.exports.checkStrings = checkStrings;
